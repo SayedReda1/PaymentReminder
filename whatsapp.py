@@ -1,8 +1,15 @@
-import os
-import keyword
-from time import sleep
+"""
+Name:           WhatsApp
+Purpose:        A script to send WA messages in private or to the first group in common
+Author:         Sayed Reda
+Last edited:    4/2/2024
+"""
 
-import keyboard
+import os
+import sys
+import pyautogui
+from time import sleep
+from exceptions import *
 from selenium import webdriver
 from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.common.by import By
@@ -23,98 +30,97 @@ class WASession:
         self.driver = webdriver.Chrome(self.options)
         self.driver.get("https://web.whatsapp.com")
 
-    def sendGroupMessage(self, phone: str, msg: str) -> str:
-        # Opening WA & Start search
+        # Waiting for WhatsApp to open up
         try:
-            # Waiting for WhatsApp to open up
-            search_bar = WebDriverWait(self.driver, 100).until(
+            self.search_bar = WebDriverWait(self.driver, 100).until(
                 EC.presence_of_element_located(
                     (By.XPATH, '//div[@contenteditable="true"][@role="textbox"][@title="Search input textbox"]'))
             )
+        except TimeoutException:
+            raise InvalidWhatsAppLogin
+
+    def sendGroupMessage(self, phone: str, msg: str) -> None:
+        try:
             # Find the contact
-            search_bar.send_keys(phone)
-            search_bar.send_keys(Keys.ENTER)
-        except TimeoutException:
-            return f"{phone}: Cannot open WhatsApp"
+            self.search_bar.send_keys(phone)
+            self.search_bar.send_keys(Keys.ENTER)
 
-        # Open group info
-        try:
-            WebDriverWait(self.driver, 10).until(
-                EC.presence_of_element_located(
-                    (By.XPATH, f'//div[@class="_2pr2H"][@role="button"][@title="Profile Details"]'))
-            ).click()
-        except TimeoutException:
-            return f"{phone}: Contact not found"
+            # Open contact info
+            try:
+                WebDriverWait(self.driver, 10).until(
+                    EC.presence_of_element_located(
+                        (By.XPATH, f'//div[@class="_2pr2H"][@role="button"][@title="Profile Details"]'))
+                ).click()
+            except TimeoutException:
+                raise ContactNotFound(phone)
 
-        # Finding first group in common & Sending the message
-        try:
-            # Waiting for contact to show up
-            WebDriverWait(self.driver, 10).until(
-                EC.presence_of_element_located((By.XPATH, f'//div[@class="lhggkp7q ln8gz9je rx9719la"][@style="z-index: 0; transition: none 0s ease 0s; height: 68px; transform: translateY(0px);"]'))
-            ).click()
+            # Finding first group in common & Sending the message
+            try:
+                # Waiting for group to show up
+                WebDriverWait(self.driver, 10).until(
+                    EC.presence_of_element_located((By.XPATH, f'//div[@class="lhggkp7q ln8gz9je rx9719la"][@style="z-index: 0; transition: none 0s ease 0s; height: 68px; transform: translateY(0px);"]'))
+                ).click()
 
-            # Send Message
-            chat_box = WebDriverWait(self.driver, 10).until(
-                EC.presence_of_element_located(
-                    (By.XPATH, '//div[@title="Type a message"][@role="textbox"][@contenteditable="true"]'))
-            )
+                # Send Message
+                chat_box = WebDriverWait(self.driver, 10).until(
+                    EC.presence_of_element_located(
+                        (By.XPATH, '//div[@title="Type a message"][@role="textbox"][@contenteditable="true"]'))
+                )
 
-            # Sending each multi-line messages
-            lines: list[str] = msg.split('\n')
-            for line in lines:
-                chat_box.send_keys(line)
-                chat_box.send_keys(Keys.SHIFT, Keys.ENTER)
+                # Sending each multi-line messages
+                lines: list[str] = msg.split('\n')
+                for line in lines:
+                    chat_box.send_keys(line)
+                    chat_box.send_keys(Keys.SHIFT, Keys.ENTER)
+                chat_box.send_keys(Keys.ENTER)
+                sleep(1)
+            except TimeoutException:
+                raise NoGroupsFound(phone)
+        except Exception as error:
+            raise error
+
+        finally:
+            # Reset search bar & close chat
+            pyautogui.press("esc")
+            sleep(0.5)
+            self.search_bar.send_keys(Keys.CONTROL + 'a')
+            self.search_bar.send_keys(Keys.BACK_SPACE)
             sleep(1)
-            chat_box.send_keys(Keys.ENTER)
-            sleep(1)
-        except TimeoutException:
-            return f"{phone}: No groups in common"
-
-        # Reset search bar & close chat
-        keyboard.press_and_release("esc")
-        search_bar.send_keys(Keys.CONTROL + 'a')
-        search_bar.send_keys(Keys.BACK_SPACE)
-
-        return f"{phone}: Message has been sent successfully"
 
     def sendPrivateMessage(self, phone: str, msg: str):
-        # Opening WA & Start search
         try:
-            # Waiting for WhatsApp to open up
-            search_bar = WebDriverWait(self.driver, 100).until(
-                EC.presence_of_element_located(
-                    (By.XPATH, '//div[@contenteditable="true"][@role="textbox"][@title="Search input textbox"]'))
-            )
             # Find the contact
-            search_bar.send_keys(phone)
-            search_bar.send_keys(Keys.ENTER)
-        except TimeoutException:
-            return f"{phone}: Cannot open WhatsApp"
+            self.search_bar.send_keys(phone)
+            self.search_bar.send_keys(Keys.ENTER)
 
-        try:
-            # Send Message
-            chat_box = WebDriverWait(self.driver, 10).until(
-                EC.presence_of_element_located(
-                    (By.XPATH, '//div[@title="Type a message"][@role="textbox"][@contenteditable="true"]'))
-            )
+            # Sending the message
+            try:
+                # Waiting for chat-box to send message
+                chat_box = WebDriverWait(self.driver, 10).until(
+                    EC.presence_of_element_located(
+                        (By.XPATH, '//div[@title="Type a message"][@role="textbox"][@contenteditable="true"]'))
+                )
 
-            # Sending each multi-line messages
-            lines: list[str] = msg.split('\n')
-            for line in lines:
-                chat_box.send_keys(line)
-                chat_box.send_keys(Keys.SHIFT, Keys.ENTER)
+                # Sending each separate line
+                lines: list[str] = msg.split('\n')
+                for line in lines:
+                    chat_box.send_keys(line)
+                    chat_box.send_keys(Keys.SHIFT, Keys.ENTER)
+                chat_box.send_keys(Keys.ENTER)
+                sleep(1)
+            except TimeoutException:
+                raise ContactNotFound(phone)
+
+        except Exception as error:
+            raise error
+
+        finally:
+            # Reset search bar & close chat
+            pyautogui.press("esc")
+            sleep(0.5)
+            self.search_bar.send_keys(Keys.CONTROL + 'a')
+            self.search_bar.send_keys(Keys.BACK_SPACE)
             sleep(1)
-            chat_box.send_keys(Keys.ENTER)
-            sleep(1)
-        except TimeoutException:
-            return f"{phone}: Contact not found"
-
-        # Reset search bar & close chat
-        keyboard.press_and_release("esc")
-        search_bar.send_keys(Keys.CONTROL + 'a')
-        search_bar.send_keys(Keys.BACK_SPACE)
-
-        return f"{phone}: Message has been sent successfully"
 
     def quit(self):
         self.driver.close()
@@ -123,10 +129,13 @@ class WASession:
 if __name__ == "__main__":
     s = "Testing\nNew Line"
     sender = WASession()
-    print(sender.sendGroupMessage("01126696747", s))
-    print(sender.sendPrivateMessage("01145082486", "Hi there!"))
-    print(sender.sendPrivateMessage("01135782486", "Hi there!"))
-    print(sender.sendGroupMessage("01145082486", s))
+    contacts = ["01126696747", "01121580543", "011498482486", "01126696747", "01121580543"]
 
+    for contact in contacts:
+        try:
+            sender.sendGroupMessage(contact, s)
 
-# TODO: Nested Try
+        except Exception as e:
+            sys.stderr.write(e.__str__())
+
+    sender.quit()
