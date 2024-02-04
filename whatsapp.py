@@ -81,8 +81,7 @@ class WASession:
 
         finally:
             # Reset search bar & close chat
-            pyautogui.press("esc")
-            sleep(0.5)
+            pyautogui.press('esc', presses=2)
             self.search_bar.send_keys(Keys.CONTROL + 'a')
             self.search_bar.send_keys(Keys.BACK_SPACE)
             sleep(1)
@@ -116,12 +115,11 @@ class WASession:
 
         finally:
             # Reset search bar & close chat
-            pyautogui.press("esc")
-            sleep(0.5)
+            pyautogui.press('esc', presses=2)
             self.search_bar.send_keys(Keys.CONTROL + 'a')
             self.search_bar.send_keys(Keys.BACK_SPACE)
             sleep(1)
-
+            
     def quit(self):
         self.driver.close()
 
@@ -129,7 +127,7 @@ class WASession:
 if __name__ == "__main__":
     s = "Testing\nNew Line"
     sender = WASession()
-    contacts = ["01126696747", "01121580543", "011498482486", "01126696747", "01121580543"]
+    contacts = ["01121580543", "011498482486", "01126696747", "01145082486"]
 
     for contact in contacts:
         try:
