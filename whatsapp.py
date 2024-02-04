@@ -43,7 +43,7 @@ class WASession:
         try:
             # Find the contact
             self.search_bar.send_keys(phone)
-            self.search_bar.send_keys(Keys.ENTER)
+            self.search_bar.send_keys(Keys.RETURN)
 
             # Open contact info
             try:
@@ -61,19 +61,9 @@ class WASession:
                     EC.presence_of_element_located((By.XPATH, f'//div[@class="lhggkp7q ln8gz9je rx9719la"][@style="z-index: 0; transition: none 0s ease 0s; height: 68px; transform: translateY(0px);"]'))
                 ).click()
 
-                # Send Message
-                chat_box = WebDriverWait(self.driver, 10).until(
-                    EC.presence_of_element_located(
-                        (By.XPATH, '//div[@title="Type a message"][@role="textbox"][@contenteditable="true"]'))
-                )
+                # Droping the message in the chat box
+                self.dropMessage(msg)
 
-                # Sending each multi-line messages
-                lines: list[str] = msg.split('\n')
-                for line in lines:
-                    chat_box.send_keys(line)
-                    chat_box.send_keys(Keys.SHIFT, Keys.ENTER)
-                chat_box.send_keys(Keys.ENTER)
-                sleep(1)
             except TimeoutException:
                 raise NoGroupsFound(phone)
         except Exception as error:
@@ -91,27 +81,18 @@ class WASession:
             # Find the contact
             self.search_bar.send_keys(phone)
             self.search_bar.send_keys(Keys.ENTER)
+            
+            # Waiting for chat-box to send message
+            chat_box = WebDriverWait(self.driver, 10).until(
+                EC.presence_of_element_located(
+                    (By.XPATH, '//div[@title="Type a message"][@role="textbox"][@contenteditable="true"]'))
+            )
 
-            # Sending the message
-            try:
-                # Waiting for chat-box to send message
-                chat_box = WebDriverWait(self.driver, 10).until(
-                    EC.presence_of_element_located(
-                        (By.XPATH, '//div[@title="Type a message"][@role="textbox"][@contenteditable="true"]'))
-                )
+            # Drop the message in chat box
+            self.dropMessage(msg)
 
-                # Sending each separate line
-                lines: list[str] = msg.split('\n')
-                for line in lines:
-                    chat_box.send_keys(line)
-                    chat_box.send_keys(Keys.SHIFT, Keys.ENTER)
-                chat_box.send_keys(Keys.ENTER)
-                sleep(1)
-            except TimeoutException:
-                raise ContactNotFound(phone)
-
-        except Exception as error:
-            raise error
+        except TimeoutException:
+            raise ContactNotFound(phone)
 
         finally:
             # Reset search bar & close chat
@@ -119,6 +100,21 @@ class WASession:
             self.search_bar.send_keys(Keys.CONTROL + 'a')
             self.search_bar.send_keys(Keys.BACK_SPACE)
             sleep(1)
+
+    def dropMessage(self, msg):
+        # Finding chat box
+        WebDriverWait(self.driver, 10).until(
+            EC.presence_of_element_located(
+                (By.XPATH, '//div[@title="Type a message"][@role="textbox"][@contenteditable="true"]'))
+        ).click()
+
+        for line in msg.split('\n'):
+            webdriver.ActionChains(self.driver).send_keys(line).perform()
+            webdriver.ActionChains(self.driver).key_down(Keys.SHIFT).key_down(Keys.ENTER).key_up(Keys.SHIFT).key_up(Keys.ENTER).perform()
+        webdriver.ActionChains(self.driver).send_keys(Keys.RETURN).perform()
+
+        sleep(1)
+
             
     def quit(self):
         self.driver.close()
@@ -127,7 +123,8 @@ class WASession:
 if __name__ == "__main__":
     s = "Testing\nNew Line"
     sender = WASession()
-    contacts = ["01121580543", "011498482486", "01126696747", "01145082486"]
+    # contacts = ["01121580543", "011498482486", "01126696747", "01145082486"]
+    contacts = ["01126696747"]
 
     for contact in contacts:
         try:
