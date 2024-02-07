@@ -20,7 +20,7 @@ class ContactNotFound(Exception):
         self.phone = phone
 
     def __str__(self):
-        return f"Contact {self.phone} is not found, try saving it to your contacts.\n"
+        return f"Contact is not found, try saving it to your contacts.\n"
 
 
 class NoGroupsFound(Exception):
@@ -29,4 +29,4 @@ class NoGroupsFound(Exception):
         self.contact = contact
 
     def __str__(self):
-        return f"{self.contact}: No groups in common.\n"
+        return f"No groups in common.\n"

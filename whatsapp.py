@@ -8,8 +8,8 @@ Last edited:    4/2/2024
 import os
 import sys
 import pyautogui
+import exceptions
 from time import sleep
-from exceptions import *
 from selenium import webdriver
 from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.common.by import By
@@ -37,7 +37,7 @@ class WASession:
                     (By.XPATH, '//div[@contenteditable="true"][@role="textbox"][@title="Search input textbox"]'))
             )
         except TimeoutException:
-            raise InvalidWhatsAppLogin
+            raise exceptions.InvalidWhatsAppLogin
 
     def sendGroupMessage(self, phone: str, msg: str) -> None:
         try:
@@ -51,7 +51,7 @@ class WASession:
                         (By.XPATH, f'//div[@class="_2pr2H"][@role="button"][@title="Profile Details"]'))
                 ).click()
             except TimeoutException:
-                raise ContactNotFound(phone)
+                raise exceptions.ContactNotFound(phone)
 
             # Finding first group in common & Sending the message
             try:
@@ -64,38 +64,36 @@ class WASession:
                 self.dropMessage(msg)
 
             except TimeoutException:
-                raise NoGroupsFound(phone)
+                raise exceptions.NoGroupsFound(phone)
+            
         except Exception as error:
+            # raising error to be handled
             raise error
 
         finally:
             # Reset search bar & close chat
-            pyautogui.press('esc', presses=2)
+            pyautogui.press('esc', presses=10)
             self.search_bar.send_keys(Keys.CONTROL + 'a')
             self.search_bar.send_keys(Keys.BACK_SPACE)
             sleep(1)
+
 
     def sendPrivateMessage(self, phone: str, msg: str):
         try:
             # Find the contact
             self.search_bar.send_keys(phone)
             self.search_bar.send_keys(Keys.ENTER)
-            
-            # Waiting for chat-box to send message
-            chat_box = WebDriverWait(self.driver, 10).until(
-                EC.presence_of_element_located(
-                    (By.XPATH, '//div[@title="Type a message"][@role="textbox"][@contenteditable="true"]'))
-            )
 
             # Drop the message in chat box
             self.dropMessage(msg)
 
         except TimeoutException:
-            raise ContactNotFound(phone)
+            # raising exception to be handled
+            raise exceptions.ContactNotFound(phone)
 
         finally:
             # Reset search bar & close chat
-            pyautogui.press('esc', presses=2)
+            pyautogui.press('esc', presses=10)
             self.search_bar.send_keys(Keys.CONTROL + 'a')
             self.search_bar.send_keys(Keys.BACK_SPACE)
             sleep(1)
