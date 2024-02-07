@@ -42,8 +42,7 @@ class WASession:
     def sendGroupMessage(self, phone: str, msg: str) -> None:
         try:
             # Find the contact
-            self.search_bar.send_keys(phone)
-            self.search_bar.send_keys(Keys.RETURN)
+            self.search_bar.send_keys(phone, Keys.ENTER)
 
             # Open contact info
             try:

@@ -35,7 +35,7 @@ class ReminderMessage:
             Returns the message value to be sent
         """
         return f"""Assalamu Alaikum
-We'd like to remind you that *{self.student}'s* current course  ended Alhamdulilah and we're begining the next one for *{datetime.date.today().strftime("%B")}*
+We'd like to remind you that *{self.student}*'s current course  ended Alhamdulilah and we're begining the next one for *{datetime.date.today().strftime("%B")}*
 
 _*New course details:*_
 *Student:* {self.student}
