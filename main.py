@@ -66,37 +66,21 @@ def main(spreadsheetURL: str, worksheetName: str, range: range) -> None:
 
         # Sending Messages
         for row in range:
-            done = False
-
             # To make sure that current row is check out
-            while not done:
-                try:
-                    # Fetch ReminderMessage
-                    message = fetchMessage(worksheet, row, COLS)
+            try:
+                # Fetch ReminderMessage
+                message = fetchMessage(worksheet, row, COLS)
 
-                    if message.startDate != '' and isToday(message.startDate):
-                        message.send(sender)
-                        # Mark as sent
-                        worksheet.update_cell(row, NOTE, "Sent course details!")
-
-                    done = True
-
-                ########### Errors related to current message only ###########
-                # Handling Quota exceed
-                except gspread.exceptions.APIError as error:
-                    if error.response.status_code == 429:
-                        # Will not mark done as True to resent the message
-                        print("Quota exceeded, waiting for a min...")
-                        time.sleep(60)
-                    else:
-                        raise error
-                
-                # WhatsApp Sender exceptions
-                except (whatsapp.exceptions.NoGroupsFound, whatsapp.exceptions.ContactNotFound) as exception:
-                    worksheet.update_cell(row, NOTE, exception.__str__())
-                    done = True     # To continue to rest of the rows
+                if message.startDate != '' and isToday(message.startDate):
+                    message.send(sender)
+                    # Mark as sent
+                    worksheet.update_cell(row, NOTE, "Sent course details!")
+            
+            # WhatsApp Sender exceptions
+            except (whatsapp.exceptions.NoGroupsFound, whatsapp.exceptions.ContactNotFound) as exception:
+                worksheet.update_cell(row, NOTE, exception.__str__())
     
-    ############# Errors related to the whole app #############
+
     # Credentials file is not found
     except FileNotFoundError:
         print("Credentials file is not found")
@@ -113,13 +97,19 @@ def main(spreadsheetURL: str, worksheetName: str, range: range) -> None:
     except gspread.exceptions.GSpreadException as exception:
         print(exception)
 
-    # except:
-    #     print("Unexpected error")
+    except:
+        print("Unexpected error")
+
+    finally:
+        sender.quit()
 
 
 if __name__ == '__main__':
     spreadSheetURL = pyip.inputURL("Enter spreadsheet URL: ")
     worksheetName = pyip.inputStr("Enter worksheet name: ")
-    workRange = range(*map(int, input("Enter range separated by space: ").split()))
+
+    inputRange = input("Enter range separated by space: ").split()
+    inputRange[1] = int(inputRange[1])+1
+    workRange = range(*(map(int, inputRange)))
 
     main(spreadSheetURL, worksheetName, workRange)

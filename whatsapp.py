@@ -40,49 +40,48 @@ class WASession:
             raise exceptions.InvalidWhatsAppLogin
 
     def sendGroupMessage(self, phone: str, msg: str) -> None:
+        # Reset search bar & close previous chat
+        pyautogui.press('esc', presses=2, interval=0.5)
+        self.search_bar.send_keys(Keys.CONTROL + 'a')
+        self.search_bar.send_keys(Keys.BACK_SPACE)
+        sleep(1)
+        
+        # Find the contact
+        self.search_bar.send_keys(phone, Keys.ENTER)
+
+        # Open contact info
         try:
-            # Find the contact
-            self.search_bar.send_keys(phone, Keys.ENTER)
+            WebDriverWait(self.driver, 10).until(
+                EC.presence_of_element_located(
+                    (By.XPATH, f'//div[@class="_2pr2H"][@role="button"][@title="Profile Details"]'))
+            ).click()
+        except TimeoutException:
+            raise exceptions.ContactNotFound(phone)
 
-            # Open contact info
-            try:
-                WebDriverWait(self.driver, 10).until(
-                    EC.presence_of_element_located(
-                        (By.XPATH, f'//div[@class="_2pr2H"][@role="button"][@title="Profile Details"]'))
-                ).click()
-            except TimeoutException:
-                raise exceptions.ContactNotFound(phone)
+        # Finding first group in common & Sending the message
+        try:
+            # Waiting for group to show up
+            WebDriverWait(self.driver, 10).until(
+                EC.presence_of_element_located((By.XPATH, f'//div[@class="lhggkp7q ln8gz9je rx9719la"][@style="z-index: 0; transition: none 0s ease 0s; height: 68px; transform: translateY(0px);"]'))
+            ).click()
 
-            # Finding first group in common & Sending the message
-            try:
-                # Waiting for group to show up
-                WebDriverWait(self.driver, 10).until(
-                    EC.presence_of_element_located((By.XPATH, f'//div[@class="lhggkp7q ln8gz9je rx9719la"][@style="z-index: 0; transition: none 0s ease 0s; height: 68px; transform: translateY(0px);"]'))
-                ).click()
+            # Droping the message in the chat box
+            self.dropMessage(msg)
 
-                # Droping the message in the chat box
-                self.dropMessage(msg)
-
-            except TimeoutException:
-                raise exceptions.NoGroupsFound(phone)
-            
-        except Exception as error:
-            # raising error to be handled
-            raise error
-
-        finally:
-            # Reset search bar & close chat
-            pyautogui.press('esc', presses=10)
-            self.search_bar.send_keys(Keys.CONTROL + 'a')
-            self.search_bar.send_keys(Keys.BACK_SPACE)
-            sleep(1)
+        except TimeoutException:
+            raise exceptions.NoGroupsFound(phone)
 
 
     def sendPrivateMessage(self, phone: str, msg: str):
+        # Reset search bar & close previous chat
+        pyautogui.press('esc', presses=2, interval=0.5)
+        self.search_bar.send_keys(Keys.CONTROL + 'a')
+        self.search_bar.send_keys(Keys.BACK_SPACE)
+        sleep(1)
+
         try:
             # Find the contact
-            self.search_bar.send_keys(phone)
-            self.search_bar.send_keys(Keys.ENTER)
+            self.search_bar.send_keys(phone, Keys.ENTER)
 
             # Drop the message in chat box
             self.dropMessage(msg)
@@ -90,13 +89,6 @@ class WASession:
         except TimeoutException:
             # raising exception to be handled
             raise exceptions.ContactNotFound(phone)
-
-        finally:
-            # Reset search bar & close chat
-            pyautogui.press('esc', presses=10)
-            self.search_bar.send_keys(Keys.CONTROL + 'a')
-            self.search_bar.send_keys(Keys.BACK_SPACE)
-            sleep(1)
 
     def dropMessage(self, msg):
         # Finding chat box
@@ -109,7 +101,6 @@ class WASession:
             webdriver.ActionChains(self.driver).send_keys(line).perform()
             webdriver.ActionChains(self.driver).key_down(Keys.SHIFT).key_down(Keys.ENTER).key_up(Keys.SHIFT).key_up(Keys.ENTER).perform()
         webdriver.ActionChains(self.driver).send_keys(Keys.RETURN).perform()
-
         sleep(1)
 
             
@@ -120,8 +111,7 @@ class WASession:
 if __name__ == "__main__":
     s = "Testing\nNew Line"
     sender = WASession()
-    # contacts = ["01121580543", "011498482486", "01126696747", "01145082486"]
-    contacts = ["01126696747"]
+    contacts = ["01145082486", "01126696747", "01145082486", "011465651586"]
 
     for contact in contacts:
         try:
