@@ -1,0 +1,260 @@
+/*colours
+。replace the default value (blue) with what you want from this list (ios human guidelines)
+
+---default---
+blue 	1170E2 
+(this one is custom but fits better)
+-------------
+
+---pallette---
+red 	FF3B30
+orange 	FF3B30
+yellow 	FFCC00
+b-green 4CD964
+purple 	5856D6
+l-blue 	5AC8FA
+pink 	FF2D55
+--------------
+*/
+/*big dude 4u*/
+QWidget {
+	background-color: #fff;
+	font-size: 8.6pt;
+	font-family: YU Gothic UI;
+	font-weight: 400;
+	alternate-background-color: #fff;
+}
+/* Table headers */
+QHeaderView::section {
+	background-color: #fff;
+	color: #000;
+	padding-left: 4px;
+	border: 2px solid #fff;
+
+}
+/* Mouse tooltips */
+QToolTip {
+	border: 1px solid #a3a3a3;
+	background-color: #fff;
+	color: #000;
+}
+/*yeet*/
+QTabBar::tab {
+    background: #fff;
+    border: 2px solid rgba(0,0,0,0);
+   	border-radius: 5px;
+ 	padding: 3px;
+ 	padding-left: 7px;
+    padding-right: 18px;
+
+}
+QTabBar::tab:selected {
+	background: #1170E2;
+    border-color: #fff;
+    color: #fff;
+    font-weight: 600;
+}
+/*clicky boys*/
+QCheckBox::indicator {
+	border-radius: 2px;
+	border: 1px solid #a3a3a3;
+	width: 10px;
+	height: 10px;
+	margin-top: 1px;
+}
+QCheckBox::indicator:checked {
+	background-color: #1170E2; /* Blue */
+	border: 1px solid #1170E2;
+
+}
+QCheckBox::indicator:unchecked {
+	background-color: #fff; /* White */
+}
+QCheckBox::indicator::disabled {
+	background-color: #fff; /* Gray/white */
+	border: 1px solid #EFEFEF;
+}
+
+/*round thingy*/
+QRadioButton::indicator {
+	border-radius: 6px;
+	border: 1px solid #a3a3a3;
+	width: 10px;
+	height: 10px;
+	margin-top: 1px;
+}
+QRadioButton::indicator:checked {
+	background-color: #1170E2; /* Blue */
+	border: 1px solid #1170E2;
+}
+QRadioButton::indicator:unchecked {
+	background-color: #fff; /* White */
+}
+QRadioButton::indicator::disabled {
+	background-color: #fff; /* Gray/white */
+	border: 1px solid #8E8E91;
+}
+/*roll boys*/
+QComboBox {
+	background-color: #1170E2;
+	border: none;
+	border-radius: 3px;
+	padding: 2px;
+	padding-left: 5px;
+	color: #fff;
+	font-family: YU Gothic;
+	font-weight: bold;
+}
+QComboBox::disabled {
+	background-color: #efefef;
+}
+QComboBox::drop-down {
+    subcontrol-origin: padding;
+    subcontrol-position: top right;
+    width: 15px;
+    border-top-right-radius: 1px; 
+    border-bottom-right-radius: 1px;
+}
+QComboBox QAbstractItemView {
+    border: none;
+    border-radius: 0px; 
+    selection-background-color: #1170E2;
+}
+/* large clicky bros */
+QPushButton {
+	background-color: transparent;
+	background-color: rgba(0,0,0,0);
+	border: 0.8px solid #1170E2;
+	border-radius: 2px;
+	padding: 2px;
+	color: #1170E2;
+	font-family: YU Gothic;
+	font-weight: bold;
+	padding-right: 5px;
+	padding-left: 5px;
+}
+QPushButton:pressed {
+    background-color: #1170E2;
+    color: #fff;
+}
+QPushButton::disabled {
+	background-color: #EFEFEF;
+	border-color: #EFEFEF;
+	color: #a3a3a3;
+}
+/*log?*/
+QTextEdit {
+	border: 1px solid #828790;
+}
+/*????????????*/
+QGroupBox {
+	margin-top: 17px;
+	font-size: 13px;
+	border: 1px solid #bdc3c7;
+	border-radius: 4px;
+}
+QGroupBox::title {
+	subcontrol-origin: margin;
+	subcontrol-position: top center;
+	padding: 5px 10px 5px 10px;
+	color: #000;
+}
+/*question mark ep2*/
+QDockWidget::close-button, QDockWidget::float-button {
+	background-color: #fff;
+	border: 0px solid #a3a3a3;
+	border-radius: 2px;
+}
+/*FOUND THIS FUCKER*/ 
+QDockWidget::list{
+	border: 10px solid red;
+}
+QDockWidget::title{
+	background-color: #fff;
+	text-align: middle;
+	padding: 3px;
+	border: 0px solid #ebebeb;
+}
+/*no clue, log?*/
+QTabWidget::pane {
+	border: 0px solid #828790;
+}
+/*menu?*/
+QMenuBar::item:selected {
+	background: #1170E2;
+	color: #fff;
+	border-radius: 2px;
+}
+QMenu::item {
+	padding-left: 20px;
+	padding-right: 15px;
+	padding-top: 4px;
+	padding-bottom: 4px;
+	border-radius: 2px;
+}
+QMenu::item:selected {
+	background: #1170E2;
+	color:#fff;
+	border: 1px solid #bdc3c7;
+}
+QMenu::item:disabled {
+	background-color: #EFEFEF;
+	color: #828790;
+
+}
+/* uhhh */
+QListWidget {
+	border-radius: 4px;
+}
+QListWidget::item{
+	border-radius: 2px;
+}
+QListWidget::item:selected {
+	background-color: #1170E2;
+	color: #ecf0f1;
+
+}
+QListWidget::item:hover {
+	background-color: #1170E2;
+	color: #fff;
+}
+/* ?????????????????????????????????????????????????? */
+QWidget#sizeSliderContainer {
+	background: transparent;
+}
+
+/* wtf */
+QLabel#color_button {
+	background: #fff;
+}
+
+/* ok this one is the search bar */
+QLineEdit#mw_searchbar { 
+	margin-left:14px; 
+	color: #000;
+}
+
+/* ugh */
+QToolButton {
+	background: transparent;
+	color: transparent;
+}
+QToolButton::disabled {
+	background-color: transparent;
+}
+QToolButton::hover {
+	border: 1px solid #1170E2;
+	border-radius: 3px;
+	color: #fff;
+}
+
+/* the icons i think */
+QLabel#gamelist_icon_background_color {
+	background-color: #323232;
+}
+QLabel#gamelist_toolbar_icon_color {
+	background-color: #e3e3e3;
+}
+QLabel#l_controller { 
+	color: #1170E2;
+}

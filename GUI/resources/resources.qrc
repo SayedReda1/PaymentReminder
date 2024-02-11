@@ -1,0 +1,14 @@
+<RCC>
+  <qresource prefix="icons">
+    <file>copy-dark.png</file>
+    <file>copy-white.png</file>
+    <file>home-dark.png</file>
+    <file>home-white.png</file>
+    <file>restart-dark.png</file>
+    <file>restart-white.png</file>
+    <file>right-arrow.png</file>
+    <file>settings-dark.png</file>
+    <file>settings-white.png</file>
+    <file>icon.ico</file>
+  </qresource>
+</RCC>
