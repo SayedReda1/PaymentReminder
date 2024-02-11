@@ -1,1 +1,1 @@
-# Hamel El-Quran Monthly Payment Reminder
+# Payment Reminder
