@@ -1,7 +1,6 @@
 from PyQt6.QtWidgets import (
     QApplication,
     QWidget,
-    QStackedWidget,     # For parent only
     QFrame,
     QVBoxLayout,
     QHBoxLayout,
@@ -13,12 +12,14 @@ from PyQt6.QtWidgets import (
 
 from PyQt6.QtGui import QIcon, QFont, QPixmap
 from PyQt6.QtCore import QSize
+from main import MainApp
+from settingsdialog import SettingsDialog
 import resources_rc
 import sys
 
 
 class HomeWidget(QWidget):
-    def __init__(self, parent:QStackedWidget = None):
+    def __init__(self, parent:MainApp = None):
         super().__init__(parent)
 
         # Main widget
@@ -149,11 +150,17 @@ class HomeWidget(QWidget):
         self.mainLayout.addLayout(self.horizontalLayout)
 
         ############ SIGNALS #############
+        self.settingsButton.clicked.connect(self.onSettingsButton)
         self.beginButton.clicked.connect(self.onBeginButton)
         self.copyMail.clicked.connect(self.onCopyMail)
 
 
     ########## SLOTS #########
+    def onSettingsButton(self):
+        # Start settings window
+        dialog = SettingsDialog(self)
+        dialog.exec()
+
     def onBeginButton(self):
         pass
     

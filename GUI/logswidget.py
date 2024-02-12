@@ -1,7 +1,6 @@
 
 from PyQt6.QtWidgets import (
     QApplication,
-    QStackedWidget,
     QWidget,
     QGridLayout,
     QPushButton,
@@ -13,11 +12,12 @@ from PyQt6.QtWidgets import (
 
 from PyQt6.QtCore import QSize, Qt
 from PyQt6.QtGui import QColor
+from main import MainApp    # Parent
 import sys
 
 
 class LogsWidget(QWidget):
-    def __init__(self, parent:QStackedWidget = None):
+    def __init__(self, parent:MainApp = None):
         super().__init__(parent=parent)
 
         # Main Layout

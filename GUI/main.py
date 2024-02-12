@@ -2,7 +2,7 @@ from PyQt6.QtWidgets import QApplication, QMainWindow, QStackedWidget, QStatusBa
 from PyQt6.QtGui import QIcon
 import resources_rc
 
-class MainWindow(QMainWindow):
+class MainApp(QMainWindow):
     def __init__(self, parent:QMainWindow = None):
         super().__init__(parent)
 
@@ -29,7 +29,7 @@ class MainWindow(QMainWindow):
 if __name__ == "__main__":
     app = QApplication([])
 
-    main = MainWindow()
+    main = MainApp()
     main.show()
 
     app.exec()
