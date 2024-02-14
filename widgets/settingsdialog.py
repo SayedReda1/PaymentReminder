@@ -29,7 +29,6 @@ class SettingsDialog(QDialog):
 		self.columnSpins = [QSpinBox(parent=self.colsBox) for i in range(6)]
 
 		# Range Box
-		self.curRange = None
 		self.rangeBox = QGroupBox(parent=self.scrollAreaWidgetContents)
 		self.rangeBoxLayout = QHBoxLayout(self.rangeBox)
 		self.rangeStartSpin = QSpinBox(parent=self.rangeBox)
@@ -209,17 +208,13 @@ class SettingsDialog(QDialog):
 		self.buttonBox.rejected.connect(self.reject)
 		self.resetButton.clicked.connect(lambda: self.reset(True))
 
-		# Making sure that start range <= end range
-		self.rangeStartSpin.valueChanged.connect(self.onRangeChange)
-		self.rangeStartSpin.valueChanged.connect(self.onRangeChange)
-
 
 	def updateData(self):
 		"""
 			Updates the database with given updated data on OK button
 		"""
 		# Connection
-		connection = sqlite3.connect("settings.db")
+		connection = sqlite3.connect("../config/settings.db")
 		cursor = connection.cursor()
 
 		# Updating Coloumns
@@ -244,7 +239,7 @@ class SettingsDialog(QDialog):
 		"""
 			Creates the database in case it was deleted from current settings
 		"""
-		connection = sqlite3.connect("settings.db")
+		connection = sqlite3.connect("../config/settings.db")
 		cursor = connection.cursor()
 
 		# Dropping Tables if they exist
@@ -278,7 +273,7 @@ class SettingsDialog(QDialog):
 			Retrieves data from settings.db
 		"""
 		try:
-			connection = sqlite3.connect("settings.db")
+			connection = sqlite3.connect("../config/settings.db")
 			cursor = connection.cursor()
 
 			# Retrieving columns
@@ -335,17 +330,6 @@ class SettingsDialog(QDialog):
 												"*Course:* {course}\n"
 												"*Start Date:* {startDate}\n"
 												"*End Date:* {endDate}")
-	
-	def onRangeChange(self):
-		# Invalid Range
-		if self.rangeStartSpin.value() > self.rangeEndSpin.value():
-			# Change to previous values
-			QApplication.beep()
-			self.rangeStartSpin.setValue(self.curRange[0])
-			self.rangeEndSpin.setValue(self.curRange[1])
-		else:
-			# Change self.curRange
-			self.curRange = [self.rangeStartSpin.value(), self.rangeEndSpin.value()]
 
 
 

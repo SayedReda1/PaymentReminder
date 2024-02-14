@@ -27,28 +27,22 @@ class ReminderMessage:
         self.endDate = endDate
         self.phone = phone
     
-    def value(self) -> str:
+    def value(self, format:str) -> str:
         """
             Returns the message value to be sent
         """
-        return f"""Assalamu Alaikum
-We'd like to remind you that *{self.student}*'s current course  ended Alhamdulilah and we're begining the next one for *{datetime.date.today().strftime("%B")}*
+        return format.format(student=self.student, course=self.course, 
+                             startDate=self.startDate, endDate=self.endDate, month=datetime.date.today().strftime("%B"))
+    
 
-_*New course details:*_
-*Student:* {self.student}
-*Course:* {self.course}
-*Start Date:* {self.startDate}
-*End Date:* {self.endDate}
-        """
-
-    def send(self, sender: whatsapp.WASession) -> None:
+    def send(self, sender: whatsapp.WASession, format:str) -> None:
         """
             Sends the message [self.value()] to the group using the phone number
 
             Input:      WASession object
             Output:     None
         """
-        sender.sendGroupMessage(self.phone, self.value())
+        sender.sendGroupMessage(self.phone, self.value(format))
 
 
 def openSpreadSheet(url: str, scopes: list[str]) -> gspread.spreadsheet:
@@ -57,7 +51,7 @@ def openSpreadSheet(url: str, scopes: list[str]) -> gspread.spreadsheet:
     """
 
     # Authentication
-    creds = Credentials.from_service_account_file("account-credentials.json", scopes=scopes)
+    creds = Credentials.from_service_account_file("config/account-credentials.json", scopes=scopes)
     client = gspread.authorize(creds)
     
     # Opening spreadsheet

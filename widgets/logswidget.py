@@ -1,23 +1,13 @@
 
-from PyQt6.QtWidgets import (
-    QApplication,
-    QWidget,
-    QGridLayout,
-    QPushButton,
-    QLabel,
-    QListWidget,
-    QListWidgetItem,
-    QSpinBox,
-    QAbstractSpinBox)
-
+from PyQt6.QtWidgets import *
 from PyQt6.QtCore import QSize, Qt
 from PyQt6.QtGui import QColor
-from main import MainApp    # Parent
+import time
 import sys
 
 
 class LogsWidget(QWidget):
-    def __init__(self, parent:MainApp = None):
+    def __init__(self, parent = None):
         super().__init__(parent=parent)
 
         # Main Layout
@@ -42,7 +32,7 @@ class LogsWidget(QWidget):
 
         # Logs List
         self.mainGridLayout.addWidget(self.logsListWidget, 0, 0, 1, 4)
-        
+
         # Current Row Section
         self.rowSpin.setMinimumSize(QSize(0, 25))
         self.rowSpin.setAlignment(Qt.AlignmentFlag.AlignCenter)
@@ -52,17 +42,26 @@ class LogsWidget(QWidget):
         self.rowSpin.setMaximum(100000)
         self.mainGridLayout.addWidget(self.rowLabel, 2, 0, 1, 1)
         self.mainGridLayout.addWidget(self.rowSpin, 2, 1, 1, 1)
-        
+
         # Stop Button
         self.stopButton.setMinimumSize(QSize(0, 30))
         self.mainGridLayout.addWidget(self.stopButton, 2, 3, 1, 1)
 
-
     def addLog(self, log: str, color: str = ""):
         item = QListWidgetItem(parent=self.logsListWidget)
         item.setText(log)
-        item.setForeground(QColor(color))
+        if color:
+            item.setForeground(QColor(color))
         self.logsListWidget.addItem(item)
+
+    def setRowCounter(self, rowIndex:int):
+        self.rowSpin.setValue(rowIndex)
+
+    def clearLogs(self):
+        self.logsListWidget.clear()
+
+    def startTimer(self, secs: int):
+        pass
 
 
 if __name__ == "__main__":
@@ -72,5 +71,6 @@ if __name__ == "__main__":
     window.addLog("Error!", "red")
     window.addLog("Done Bro", "green")
     window.show()
+
 
     app.exec()

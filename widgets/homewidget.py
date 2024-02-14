@@ -1,26 +1,18 @@
-from PyQt6.QtWidgets import (
-    QApplication,
-    QWidget,
-    QFrame,
-    QVBoxLayout,
-    QHBoxLayout,
-    QSpacerItem,
-    QLabel,
-    QPushButton,
-    QLineEdit,
-    QSizePolicy)
-
+from PyQt6.QtWidgets import *
 from PyQt6.QtGui import QIcon, QFont, QPixmap
 from PyQt6.QtCore import QSize
-from main import MainApp
+from data_fetcher import gspread, openSpreadSheet
 from settingsdialog import SettingsDialog
 import resources_rc
 import sys
 
 
 class HomeWidget(QWidget):
-    def __init__(self, parent:MainApp = None):
+    def __init__(self, parent = None):
         super().__init__(parent)
+
+        # Saving parent reference
+        self.m_parent = parent
 
         # Main widget
         self.mainLayout = QVBoxLayout(self)
@@ -57,7 +49,7 @@ class HomeWidget(QWidget):
         self.mainIcon.setPixmap(QPixmap(":/icons/icon.ico"))
         self.mainIcon.setScaledContents(True)
         self.headerLayout.addWidget(self.mainIcon)
-        
+
         # Header Label
         self.mainLabel.setText("Payment Reminder")
         font = QFont()
@@ -65,11 +57,11 @@ class HomeWidget(QWidget):
         font.setPointSize(14)
         self.mainLabel.setFont(font)
         self.headerLayout.addWidget(self.mainLabel)
-        
+
         # Header horizontal spacer
         spacerItem = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
         self.headerLayout.addItem(spacerItem)
-        
+
         # Settings button
         self.settingsButton.setMinimumSize(QSize(30, 30))
         icon = QIcon()
@@ -78,11 +70,11 @@ class HomeWidget(QWidget):
         self.settingsButton.setIconSize(QSize(20, 20))
         self.settingsButton.setToolTip("Open settings")
         self.headerLayout.addWidget(self.settingsButton)
-        
+
         # Adding header layout
         self.mainLayout.addLayout(self.headerLayout)
-        
-        
+
+
         # ------- Middle Body Widgets
         # Middle body frame
         self.middleBodyFrame.setFrameShape(QFrame.Shape.StyledPanel)
@@ -90,7 +82,7 @@ class HomeWidget(QWidget):
 
         # Middle body vertical layout
         self.bodyLayout.setContentsMargins(0, -1, 0, -1)
-        
+
         # Spacer 1
         spacerItem1 = QSpacerItem(20, 40, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
         self.bodyLayout.addItem(spacerItem1)
@@ -109,7 +101,7 @@ class HomeWidget(QWidget):
         # Spacer 2
         spacerItem2 = QSpacerItem(20, 40, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
         self.bodyLayout.addItem(spacerItem2)
-        
+
         # Work Sheet Label
         self.worksheetLabel.setText("Work Sheet")
         self.worksheetLabel.setFont(font)
@@ -118,11 +110,11 @@ class HomeWidget(QWidget):
         # Work Sheet LineEdit
         self.worksheetLine.setPlaceholderText("Enter your Work Sheet name")
         self.bodyLayout.addWidget(self.worksheetLine)
-        
+
         # Spacer 3
         spacerItem3 = QSpacerItem(478, 23, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
         self.bodyLayout.addItem(spacerItem3)
-        
+
         # Adding middle body frame to main
         self.mainLayout.addWidget(self.middleBodyFrame)
 
@@ -139,7 +131,7 @@ class HomeWidget(QWidget):
         # middle spacer
         spacerItem4 = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
         self.horizontalLayout.addItem(spacerItem4)
-        
+
         # Begin button
         self.beginButton.setText("Begin")
         self.horizontalLayout.addWidget(self.beginButton)
@@ -162,10 +154,36 @@ class HomeWidget(QWidget):
         dialog.exec()
 
     def onBeginButton(self):
-        pass
-    
+        self.beginButton.setDisabled(True)
+        self.m_parent.updateStatus("Loading Spread Sheet...")
+        try:
+            spreadSheet = openSpreadSheet(self.spreadsheetLine.text(), ["https://www.googleapis.com/auth/spreadsheets"])
+            workSheet = spreadSheet.worksheet(self.worksheetLine.text())
+
+
+
+        except FileNotFoundError:
+            QMessageBox.critical(self, "Credentials Not Found", "Couldn't get credentials\n'account-credentials.json' is missing")
+        except gspread.exceptions.SpreadsheetNotFound:
+            QMessageBox.critical(self, "Invalid Spread Sheet", "Cannot find Spread Sheet\nCheck out URL")
+        except gspread.exceptions.WorksheetNotFound:
+            QMessageBox.critical(self, "Invalid Work Sheet", "Work Sheet name is not found in Spread Sheet")
+        except Exception as error:
+            QMessageBox.critical(self, "Error", error.__str__())
+
+        finally:
+            # Enable the button
+            self.beginButton.setDisabled(False)
+            
+        # Clearing message before starting
+        self.m_parent.statusbar.clearMessage()
+
+        # Pass worksheet to main begin function
+        self.m_parent.run(workSheet)
+
     def onCopyMail(self):
         QApplication.clipboard().setText("hamelelquran-payment-reminder@hamelelquran-paymentreminder.iam.gserviceaccount.com")
+        self.m_parent.updateStatus("Email copied to clipboard!", 1500)
 
 
 if __name__ == "__main__":
