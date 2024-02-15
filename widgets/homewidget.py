@@ -1,8 +1,8 @@
 from PyQt6.QtWidgets import *
 from PyQt6.QtGui import QIcon, QFont, QPixmap
 from PyQt6.QtCore import QSize
-from settingsdialog import SettingsDialog
-import resources_rc
+from widgets.settingsdialog import SettingsDialog
+from widgets import resources_rc
 import sys
 
 
@@ -24,12 +24,12 @@ class HomeWidget(QWidget):
         self.settingsButton = QPushButton(parent=self)
 
         # Middle body widgets
-        self.middleBodyFrame = QFrame(parent=self)
-        self.bodyLayout = QVBoxLayout(self.middleBodyFrame)
-        self.spreadsheetLabel = QLabel(parent=self.middleBodyFrame)
-        self.spreadsheetLine = QLineEdit(parent=self.middleBodyFrame)
-        self.worksheetLabel = QLabel(parent=self.middleBodyFrame)
-        self.worksheetLine = QLineEdit(parent=self.middleBodyFrame)
+        # self.middleBodyFrame = QFrame(parent=self)
+        self.bodyLayout = QVBoxLayout()
+        self.spreadsheetLabel = QLabel(parent=self)
+        self.spreadsheetLine = QLineEdit(parent=self)
+        self.worksheetLabel = QLabel(parent=self)
+        self.worksheetLine = QLineEdit(parent=self)
 
         # Control buttons widgets
         self.horizontalLayout = QHBoxLayout()
@@ -65,7 +65,7 @@ class HomeWidget(QWidget):
         # Settings button
         self.settingsButton.setMinimumSize(QSize(30, 30))
         icon = QIcon()
-        icon.addPixmap(QPixmap(":/icons/settings-white.png"), QIcon.Mode.Normal, QIcon.State.Off)
+        icon.addPixmap(QPixmap(":/icons/settings-dark.png"), QIcon.Mode.Normal, QIcon.State.Off)
         self.settingsButton.setIcon(icon)
         self.settingsButton.setIconSize(QSize(20, 20))
         self.settingsButton.setToolTip("Open settings")
@@ -76,10 +76,6 @@ class HomeWidget(QWidget):
 
 
         # ------- Middle Body Widgets
-        # Middle body frame
-        self.middleBodyFrame.setFrameShape(QFrame.Shape.StyledPanel)
-        self.middleBodyFrame.setFrameShadow(QFrame.Shadow.Raised)
-
         # Middle body vertical layout
         self.bodyLayout.setContentsMargins(0, -1, 0, -1)
 
@@ -115,14 +111,14 @@ class HomeWidget(QWidget):
         spacerItem3 = QSpacerItem(478, 23, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
         self.bodyLayout.addItem(spacerItem3)
 
-        # Adding middle body frame to main
-        self.mainLayout.addWidget(self.middleBodyFrame)
+        # Adding body layout to main
+        self.mainLayout.addLayout(self.bodyLayout)
 
 
         # ------ Control buttons layout
         # Copy Mail Button
         icon1 = QIcon()
-        icon1.addPixmap(QPixmap(":/icons/copy-white.png"), QIcon.Mode.Normal, QIcon.State.Off)
+        icon1.addPixmap(QPixmap(":/icons/copy-dark.png"), QIcon.Mode.Normal, QIcon.State.Off)
         self.copyMail.setIcon(icon1)
         self.copyMail.setIconSize(QSize(20, 20))
         self.copyMail.setToolTip("Copy mail to add in the spreadsheet")
@@ -149,7 +145,8 @@ class HomeWidget(QWidget):
 
     ########## SLOTS #########
     def onBeginButton(self):
-        pass
+        self.m_parent.startWorking(self.spreadsheetLine.text(), self.worksheetLine.text())
+        self.resetFields()
 
     def resetFields(self):
         self.spreadsheetLine.clear()

@@ -1,115 +1,87 @@
-"""
-Name:           main
-Purpose:        fetches data column by column and send the message
-
-Author:         Sayed Reda
-Last edited:    7/2/2024
-"""
-
-import time
-import pyinputplus as pyip
-from data_fetcher import *
+from widgets import *
+from worker import MainWorker
+from PyQt6.QtGui import QIcon
+from PyQt6.QtCore import QThread
 
 
+class MainApp(QMainWindow):
+    def __init__(self, parent:QMainWindow = None):
+        super().__init__(parent)
 
-# Spreadsheet opening scopes
-SCOPES: list[str] = ["https://www.googleapis.com/auth/spreadsheets"]
-# [studentCol, courseCol, startDateCol, endDateCol, phoneCol]
-COLS: list[int] = [1, 3, 10, 11, 13]
-# The column number where to put the note
-NOTE = 15
+        ############ GUI Settings ##############
+        # Central widget
+        self.centralStackedWidget = QStackedWidget(parent=self)
 
-def isToday(date_str: str):
-    """
-        Checks if the given date string in "DD/MM/YYYY" format is today.
+        # Home & Logs Widget
+        self.home = HomeWidget(self)
+        self.logs = LogsWidget(self)
 
-        Input:      date string
-        Output:     True if the date is today, False otherwise
-    """
-    try:
-        # Parse the date string
-        date_obj = datetime.datetime.strptime(date_str, "%d/%m/%Y").date()  # Use .date() to extract the date part
+        # Adding widgets
+        self.centralStackedWidget.addWidget(self.home)
+        self.centralStackedWidget.addWidget(self.logs)
 
-        # Get today's date
-        today = datetime.date.today()
+        # Status Bar
+        self.statusbar = QStatusBar(parent=self)
 
-        # Check if the dates are equal
-        return date_obj == today
-    
-    except ValueError:
-        # Invalid date format
-        return False
+        self.setupUi()
 
-def main(spreadsheetURL: str, worksheetName: str, range: range) -> None:
-    """
-        The main function that fetches each message and check it
-        then, if it's today send it and make a note, otherwise skip
+    def setupUi(self):
+        # MainWindow
+        self.switchWidget(0)
+        self.setWindowIcon(QIcon(":/icons/icon.ico"))
+        self.setWindowTitle("Payment Reminder")
 
-        Input:      spreadsheet URL, worksheet in the spreadsheet, the range to be checkout
-        Output:     None
-    """
-    
-    global SCOPES, COLS, NOTE
+        # Central stacked widget
+        self.setCentralWidget(self.centralStackedWidget)
 
-    try:
-        # Opening spreadsheet
-        print("Opening spread sheet...")
-        spreadsheet = openSpreadSheet(spreadsheetURL, SCOPES)
-
-        # Opening worksheet
-        print(f"Opening '{worksheetName}' worksheet...")
-        worksheet = spreadsheet.worksheet(worksheetName)
-
-        # Starting the sender
-        print("Starting sender...")
-        sender = whatsapp.WASession()
-
-        # Sending Messages
-        for row in range:
-            # To make sure that current row is check out
-            try:
-                # Fetch ReminderMessage
-                message = fetchMessage(worksheet, row, COLS)
-
-                if message.startDate != '' and isToday(message.startDate):
-                    message.send(sender)
-                    # Mark as sent
-                    worksheet.update_cell(row, NOTE, "Sent course details!")
-            
-            # WhatsApp Sender exceptions
-            except (whatsapp.exceptions.NoGroupsFound, whatsapp.exceptions.ContactNotFound) as exception:
-                worksheet.update_cell(row, NOTE, exception.__str__())
-    
-
-    # Credentials file is not found
-    except FileNotFoundError:
-        print("Credentials file is not found")
-    # Invalid URL
-    except gspread.SpreadsheetNotFound:
-        print("Cannot find spreadsheet, check out URL")
-    # Invalid WorkSheet Name
-    except gspread.WorksheetNotFound:
-        print(f"Worksheet '{worksheetName}' is not found")
-    # Cannot open WhatsApp
-    except whatsapp.exceptions.InvalidWhatsAppLogin:
-        print("Cannot login to WhatsApp")
-    # Input errors
-    except gspread.exceptions.GSpreadException as exception:
-        print(exception)
-
-    except:
-        print("Unexpected error")
-
-    finally:
-        sender.quit()
+        # Setting status bar
+        self.setStatusBar(self.statusbar)
 
 
-if __name__ == '__main__':
-    spreadSheetURL = pyip.inputURL("Enter spreadsheet URL: ")
-    worksheetName = pyip.inputStr("Enter worksheet name: ")
+    def startWorking(self, spreadURL: str, worksheetName: str):
+        # Worker and thread
+        self.worker = MainWorker()
+        self.thread = QThread()
+        self.worker.spreadURL = spreadURL
+        self.worker.worksheetName = worksheetName
 
-    inputRange = input("Enter range separated by space: ").split()
-    inputRange[1] = int(inputRange[1])+1
-    workRange = range(*(map(int, inputRange)))
+        # Moving to thread
+        self.worker.moveToThread(self.thread)
 
-    main(spreadSheetURL, worksheetName, workRange)
+        # Signals
+        self.thread.started.connect(self.worker.run)
+        self.worker.finished.connect(self.thread.quit)
+        self.worker.finished.connect(self.worker.deleteLater)
+        self.thread.finished.connect(self.thread.deleteLater)
+        self.worker.add_log_request.connect(self.logs.addLog)
+        self.worker.logs_row_change_request.connect(self.logs.updateRow)
+        self.worker.database_error_raised.connect(
+            lambda: QMessageBox.critical(self, "Database Error", "Database file is missing or corrupted\nGo to settings and reconfigure")
+        )
+        self.thread.start()
+
+        # Others
+        self.switchWidget(1)
+        self.logs.start()
+        self.thread.finished.connect(self.logs.end)
+
+
+    def switchWidget(self, i):
+        self.centralStackedWidget.setCurrentIndex(i)
+
+
+    def updateStatus(self, status: str, msecs:int = -1):
+        if (msecs == -1):
+            self.statusbar.showMessage(status)
+        else:
+            self.statusbar.showMessage(status, msecs)
+
+
+
+if __name__ == "__main__":
+    app = QApplication([])
+
+    main = MainApp()
+    main.show()
+
+    app.exec()

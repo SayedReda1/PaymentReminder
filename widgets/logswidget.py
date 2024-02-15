@@ -1,8 +1,7 @@
 
 from PyQt6.QtWidgets import *
-from PyQt6.QtCore import QSize, Qt
-from PyQt6.QtGui import QColor, QFont
-import time
+from PyQt6.QtCore import Qt
+from PyQt6.QtGui import QColor
 import sys
 
 
@@ -54,14 +53,27 @@ class LogsWidget(QWidget):
         self.bottomLayout.addWidget(self.backButton)
         spacerItem2 = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
         self.bottomLayout.addItem(spacerItem2)
+        self.pauseButton.setCheckable(True)
         self.bottomLayout.addWidget(self.pauseButton)
         self.bottomLayout.addWidget(self.endButton)
         self.mainLayout.addLayout(self.bottomLayout)
 
         ######## SLOTS ########
-        # self.backButton.clicked.connect()
+        self.backButton.clicked.connect(lambda: self.m_parent.switchWidget(0))
         # self.pauseButton.clicked.connect()
         # self.endButton.clicked.connect()
+
+
+    def start(self):
+        self.backButton.setDisabled(True)
+        self.pauseButton.setText("Pause")
+        self.pauseButton.setChecked(True)       # True if working, False otherwise
+        self.reset()
+
+    def end(self):
+        self.backButton.setDisabled(False)
+        self.pauseButton.setText("Resume")
+        self.pauseButton.setChecked(False)
 
     def addLog(self, log: str, color: str = ""):
         item = QListWidgetItem(parent=self.logsListWidget)
@@ -70,7 +82,7 @@ class LogsWidget(QWidget):
             item.setForeground(QColor(color))
         self.logsListWidget.addItem(item)
 
-    def setRow(self, rowIndex:int):
+    def updateRow(self, rowIndex:int):
         self.rowSpin.setValue(rowIndex)
 
     def reset(self):

@@ -4,9 +4,9 @@ from PyQt6.QtCore import QSize, QRect, Qt
 import sys
 import os
 import sqlite3
-import resources_rc
 
-DATA_DIR = os.path.abspath(os.path.join(os.getcwd(), '..'))
+
+DATA_DIR = os.path.abspath('./config')
 
 
 class SettingsDialog(QDialog):
@@ -218,6 +218,9 @@ class SettingsDialog(QDialog):
 		"""
 		global DATA_DIR
 
+		# Return QMessageBox.accepted flag
+		self.accept()
+
 		# Connection
 		connection = sqlite3.connect(os.path.join(DATA_DIR, 'settings.db'))
 		cursor = connection.cursor()
@@ -235,9 +238,6 @@ class SettingsDialog(QDialog):
 		# Finishing up
 		connection.commit()
 		connection.close()
-		
-		# Return QMessageBox.accepted flag
-		self.accept()
 
 
 	def createData(self):

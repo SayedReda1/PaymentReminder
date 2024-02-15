@@ -1,4 +1,3 @@
-from settingsdialog import *
-from homewidget import *
-from settingswidget import *
-import resources_rc
+from widgets.homewidget import *
+from widgets.logswidget import *
+from widgets import resources_rc
