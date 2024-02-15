@@ -6,6 +6,9 @@ import os
 import sqlite3
 import resources_rc
 
+DATA_DIR = os.path.abspath(os.path.join(os.getcwd(), '..'))
+
+
 class SettingsDialog(QDialog):
 	def __init__(self, parent:QWidget=None):
 		super().__init__(parent=parent)
@@ -213,8 +216,10 @@ class SettingsDialog(QDialog):
 		"""
 			Updates the database with given updated data on OK button
 		"""
+		global DATA_DIR
+
 		# Connection
-		connection = sqlite3.connect("../config/settings.db")
+		connection = sqlite3.connect(os.path.join(DATA_DIR, 'settings.db'))
 		cursor = connection.cursor()
 
 		# Updating Coloumns
@@ -239,7 +244,9 @@ class SettingsDialog(QDialog):
 		"""
 			Creates the database in case it was deleted from current settings
 		"""
-		connection = sqlite3.connect("../config/settings.db")
+		global DATA_DIR
+
+		connection = sqlite3.connect(os.path.join(DATA_DIR, 'settings.db'))
 		cursor = connection.cursor()
 
 		# Dropping Tables if they exist
@@ -272,8 +279,10 @@ class SettingsDialog(QDialog):
 		"""
 			Retrieves data from settings.db
 		"""
+		global DATA_DIR
+		
 		try:
-			connection = sqlite3.connect("../config/settings.db")
+			connection = sqlite3.connect(os.path.join(DATA_DIR, 'settings.db'))
 			cursor = connection.cursor()
 
 			# Retrieving columns
@@ -303,8 +312,6 @@ class SettingsDialog(QDialog):
 
 
 	def reset(self, warn):
-		QApplication.beep()
-		
 		# Warn before editing
 		if not warn or QMessageBox.warning(self, "Reset Settings", "Are you sure to reset settings to default?", 
 						QMessageBox.StandardButton.Yes|QMessageBox.StandardButton.No) == QMessageBox.StandardButton.Yes:

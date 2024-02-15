@@ -1,7 +1,7 @@
 
 from PyQt6.QtWidgets import *
 from PyQt6.QtCore import QSize, Qt
-from PyQt6.QtGui import QColor
+from PyQt6.QtGui import QColor, QFont
 import time
 import sys
 
@@ -10,42 +10,58 @@ class LogsWidget(QWidget):
     def __init__(self, parent = None):
         super().__init__(parent=parent)
 
+        self.m_parent = parent
+
         # Main Layout
-        self.mainGridLayout = QGridLayout(self)
+        self.mainLayout = QVBoxLayout(self)
+
+        # Upper Row Section
+        self.topLayout = QHBoxLayout()
+        self.rowLabel = QLabel(parent=self, text="Row: ")
+        self.rowSpin = QSpinBox(parent=self)
 
         # Logs List
         self.logsListWidget = QListWidget(parent=self)
 
-        # Row Label Section
-        self.rowLabel = QLabel(parent=self, text="Current Row: ")
-        self.rowSpin = QSpinBox(parent=self)
-
-        # Stop Button
-        self.stopButton = QPushButton(parent=self, text="Stop")
+        # Lower Buttons Section
+        self.bottomLayout = QHBoxLayout()
+        self.backButton = QPushButton(parent=self, text="Back")
+        self.pauseButton = QPushButton(parent=self, text="Resume")
+        self.endButton = QPushButton(parent=self, text="End")
 
         # Setup
         self.setupUi()
 
     def setupUi(self):
-        self.mainGridLayout.setColumnStretch(2, 5)
-        self.mainGridLayout.setColumnStretch(3, 2)
 
-        # Logs List
-        self.mainGridLayout.addWidget(self.logsListWidget, 0, 0, 1, 4)
-
-        # Current Row Section
-        self.rowSpin.setMinimumSize(QSize(0, 25))
+        # Upper Row Section
+        self.topLayout.addWidget(self.rowLabel)
+        self.rowSpin.setStyleSheet("background-color: transparent;")
+        self.rowSpin.setFrame(False)
         self.rowSpin.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.rowSpin.setReadOnly(True)
         self.rowSpin.setButtonSymbols(QAbstractSpinBox.ButtonSymbols.NoButtons)
-        self.rowSpin.setMinimum(1)
-        self.rowSpin.setMaximum(100000)
-        self.mainGridLayout.addWidget(self.rowLabel, 2, 0, 1, 1)
-        self.mainGridLayout.addWidget(self.rowSpin, 2, 1, 1, 1)
+        self.rowSpin.setReadOnly(True)
+        self.rowSpin.setRange(1, 100000)
+        self.topLayout.addWidget(self.rowSpin)
+        spacerItem = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
+        self.topLayout.addItem(spacerItem)
+        self.mainLayout.addLayout(self.topLayout)
 
-        # Stop Button
-        self.stopButton.setMinimumSize(QSize(0, 30))
-        self.mainGridLayout.addWidget(self.stopButton, 2, 3, 1, 1)
+        # List Widget Section
+        self.mainLayout.addWidget(self.logsListWidget)
+
+        # Bottom Buttons Section
+        self.bottomLayout.addWidget(self.backButton)
+        spacerItem2 = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
+        self.bottomLayout.addItem(spacerItem2)
+        self.bottomLayout.addWidget(self.pauseButton)
+        self.bottomLayout.addWidget(self.endButton)
+        self.mainLayout.addLayout(self.bottomLayout)
+
+        ######## SLOTS ########
+        # self.backButton.clicked.connect()
+        # self.pauseButton.clicked.connect()
+        # self.endButton.clicked.connect()
 
     def addLog(self, log: str, color: str = ""):
         item = QListWidgetItem(parent=self.logsListWidget)
@@ -54,14 +70,12 @@ class LogsWidget(QWidget):
             item.setForeground(QColor(color))
         self.logsListWidget.addItem(item)
 
-    def setRowCounter(self, rowIndex:int):
+    def setRow(self, rowIndex:int):
         self.rowSpin.setValue(rowIndex)
 
-    def clearLogs(self):
+    def reset(self):
         self.logsListWidget.clear()
-
-    def startTimer(self, secs: int):
-        pass
+        self.rowSpin.clear()
 
 
 if __name__ == "__main__":
@@ -71,6 +85,5 @@ if __name__ == "__main__":
     window.addLog("Error!", "red")
     window.addLog("Done Bro", "green")
     window.show()
-
 
     app.exec()

@@ -1,7 +1,6 @@
 from PyQt6.QtWidgets import *
 from PyQt6.QtGui import QIcon, QFont, QPixmap
 from PyQt6.QtCore import QSize
-from data_fetcher import gspread, openSpreadSheet
 from settingsdialog import SettingsDialog
 import resources_rc
 import sys
@@ -11,6 +10,7 @@ class HomeWidget(QWidget):
     def __init__(self, parent = None):
         super().__init__(parent)
 
+        ########### GUI Settings ###########
         # Saving parent reference
         self.m_parent = parent
 
@@ -142,48 +142,22 @@ class HomeWidget(QWidget):
         self.mainLayout.addLayout(self.horizontalLayout)
 
         ############ SIGNALS #############
-        self.settingsButton.clicked.connect(self.onSettingsButton)
+        self.settingsButton.clicked.connect(lambda: SettingsDialog(self).exec())
         self.beginButton.clicked.connect(self.onBeginButton)
         self.copyMail.clicked.connect(self.onCopyMail)
 
 
     ########## SLOTS #########
-    def onSettingsButton(self):
-        # Start settings window
-        dialog = SettingsDialog(self)
-        dialog.exec()
-
     def onBeginButton(self):
-        self.beginButton.setDisabled(True)
-        self.m_parent.updateStatus("Loading Spread Sheet...")
-        try:
-            spreadSheet = openSpreadSheet(self.spreadsheetLine.text(), ["https://www.googleapis.com/auth/spreadsheets"])
-            workSheet = spreadSheet.worksheet(self.worksheetLine.text())
+        pass
 
-
-
-        except FileNotFoundError:
-            QMessageBox.critical(self, "Credentials Not Found", "Couldn't get credentials\n'account-credentials.json' is missing")
-        except gspread.exceptions.SpreadsheetNotFound:
-            QMessageBox.critical(self, "Invalid Spread Sheet", "Cannot find Spread Sheet\nCheck out URL")
-        except gspread.exceptions.WorksheetNotFound:
-            QMessageBox.critical(self, "Invalid Work Sheet", "Work Sheet name is not found in Spread Sheet")
-        except Exception as error:
-            QMessageBox.critical(self, "Error", error.__str__())
-
-        finally:
-            # Enable the button
-            self.beginButton.setDisabled(False)
-            
-        # Clearing message before starting
-        self.m_parent.statusbar.clearMessage()
-
-        # Pass worksheet to main begin function
-        self.m_parent.run(workSheet)
+    def resetFields(self):
+        self.spreadsheetLine.clear()
+        self.worksheetLine.clear()
 
     def onCopyMail(self):
         QApplication.clipboard().setText("hamelelquran-payment-reminder@hamelelquran-paymentreminder.iam.gserviceaccount.com")
-        self.m_parent.updateStatus("Email copied to clipboard!", 1500)
+        self.m_parent.updateStatus("Email copied to clipboard!", 1000)
 
 
 if __name__ == "__main__":
