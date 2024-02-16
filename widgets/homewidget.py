@@ -44,8 +44,8 @@ class HomeWidget(QWidget):
 
         # ------- Header widgets
         # Icon
-        self.mainIcon.setMinimumSize(QSize(50, 50))
-        self.mainIcon.setMaximumSize(QSize(50, 50))
+        self.mainIcon.setMinimumSize(QSize(40, 40))
+        self.mainIcon.setMaximumSize(QSize(40, 40))
         self.mainIcon.setPixmap(QPixmap(":/icons/icon.ico"))
         self.mainIcon.setScaledContents(True)
         self.headerLayout.addWidget(self.mainIcon)
@@ -73,7 +73,6 @@ class HomeWidget(QWidget):
 
         # Adding header layout
         self.mainLayout.addLayout(self.headerLayout)
-
 
         # ------- Middle Body Widgets
         # Middle body vertical layout
@@ -114,7 +113,6 @@ class HomeWidget(QWidget):
         # Adding body layout to main
         self.mainLayout.addLayout(self.bodyLayout)
 
-
         # ------ Control buttons layout
         # Copy Mail Button
         icon1 = QIcon()
@@ -137,13 +135,14 @@ class HomeWidget(QWidget):
         self.horizontalLayout.setStretch(2, 4)
         self.mainLayout.addLayout(self.horizontalLayout)
 
-        ############ SIGNALS #############
-        self.settingsButton.clicked.connect(lambda: SettingsDialog(self).exec())
+        # --------- SIGNALS -----------
+        self.settingsButton.clicked.connect(
+            lambda: SettingsDialog(self).exec()
+        )
         self.beginButton.clicked.connect(self.onBeginButton)
-        self.copyMail.clicked.connect(self.onCopyMail)
+        self.copyMail.clicked.connect(self.onCopyButton)
 
-
-    ########## SLOTS #########
+    # --------- SLOTS ----------
     def onBeginButton(self):
         self.m_parent.startWorking(self.spreadsheetLine.text(), self.worksheetLine.text())
         self.resetFields()
@@ -152,9 +151,8 @@ class HomeWidget(QWidget):
         self.spreadsheetLine.clear()
         self.worksheetLine.clear()
 
-    def onCopyMail(self):
+    def onCopyButton(self):
         QApplication.clipboard().setText("hamelelquran-payment-reminder@hamelelquran-paymentreminder.iam.gserviceaccount.com")
-        self.m_parent.updateStatus("Email copied to clipboard!", 1000)
 
 
 if __name__ == "__main__":

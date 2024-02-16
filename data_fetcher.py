@@ -27,11 +27,11 @@ class ReminderMessage:
         self.endDate = endDate
         self.phone = phone
     
-    def value(self, format:str) -> str:
+    def value(self, msg_format: str) -> str:
         """
             Returns the message value to be sent
         """
-        return format.format(student=self.student, course=self.course, 
+        return msg_format.format(student=self.student, course=self.course,
                              startDate=self.startDate, endDate=self.endDate, month=datetime.date.today().strftime("%B"))
     
 

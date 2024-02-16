@@ -1,6 +1,6 @@
 
 from PyQt6.QtWidgets import *
-from PyQt6.QtCore import Qt
+from PyQt6.QtCore import Qt, QSize
 from PyQt6.QtGui import QColor
 import sys
 
@@ -25,14 +25,12 @@ class LogsWidget(QWidget):
         # Lower Buttons Section
         self.bottomLayout = QHBoxLayout()
         self.backButton = QPushButton(parent=self, text="Back")
-        self.pauseButton = QPushButton(parent=self, text="Resume")
-        self.endButton = QPushButton(parent=self, text="End")
+        self.status_control_button = QPushButton(parent=self, text="Resume")
 
         # Setup
         self.setupUi()
 
     def setupUi(self):
-
         # Upper Row Section
         self.topLayout.addWidget(self.rowLabel)
         self.rowSpin.setStyleSheet("background-color: transparent;")
@@ -53,36 +51,36 @@ class LogsWidget(QWidget):
         self.bottomLayout.addWidget(self.backButton)
         spacerItem2 = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
         self.bottomLayout.addItem(spacerItem2)
-        self.pauseButton.setCheckable(True)
-        self.bottomLayout.addWidget(self.pauseButton)
-        self.bottomLayout.addWidget(self.endButton)
+        self.status_control_button.setCheckable(True)
+        self.bottomLayout.addWidget(self.status_control_button)
         self.mainLayout.addLayout(self.bottomLayout)
 
-        ######## SLOTS ########
+        # -------- SLOTS --------
         self.backButton.clicked.connect(lambda: self.m_parent.switchWidget(0))
-        # self.pauseButton.clicked.connect()
+        # self.status_control_button.clicked.connect()
         # self.endButton.clicked.connect()
 
 
     def start(self):
         self.backButton.setDisabled(True)
-        self.pauseButton.setText("Pause")
-        self.pauseButton.setChecked(True)       # True if working, False otherwise
+        self.status_control_button.setText("Pause")
+        self.status_control_button.setChecked(True)       # True if working, False otherwise
         self.reset()
 
     def end(self):
         self.backButton.setDisabled(False)
-        self.pauseButton.setText("Resume")
-        self.pauseButton.setChecked(False)
+        self.status_control_button.setText("Resume")
+        self.status_control_button.setChecked(False)
 
     def addLog(self, log: str, color: str = ""):
         item = QListWidgetItem(parent=self.logsListWidget)
         item.setText(log)
+
         if color:
             item.setForeground(QColor(color))
         self.logsListWidget.addItem(item)
 
-    def updateRow(self, rowIndex:int):
+    def updateRow(self, rowIndex: int):
         self.rowSpin.setValue(rowIndex)
 
     def reset(self):
@@ -92,9 +90,14 @@ class LogsWidget(QWidget):
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
+    app.setStyle("fusion")
 
     window = LogsWidget()
-    window.addLog("Error!", "red")
+    window.addLog("Error!", "#ED7D31")
+    window.addLog("Done Bro", "green")
+
+    name = "Sayed"
+    window.addLog(f"[45]: {name} -> I'm writing anything just to test it out", "orange")
     window.addLog("Done Bro", "green")
     window.show()
 

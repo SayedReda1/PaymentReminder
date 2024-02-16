@@ -7,15 +7,14 @@ Last edited:    4/2/2024
 
 import os
 import sys
-import pyautogui
 import exceptions
-from time import sleep
 from selenium import webdriver
 from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from time import sleep
 
 
 class WASession:
@@ -41,7 +40,7 @@ class WASession:
 
     def sendGroupMessage(self, phone: str, msg: str) -> None:
         # Reset search bar & close previous chat
-        pyautogui.press('esc', presses=2, interval=0.5)
+        self.closeCurrentChat()
         self.search_bar.send_keys(Keys.CONTROL + 'a')
         self.search_bar.send_keys(Keys.BACK_SPACE)
         sleep(1)
@@ -71,10 +70,9 @@ class WASession:
         except TimeoutException:
             raise exceptions.NoGroupsFound(phone)
 
-
     def sendPrivateMessage(self, phone: str, msg: str):
         # Reset search bar & close previous chat
-        pyautogui.press('esc', presses=2, interval=0.5)
+        self.closeCurrentChat()
         self.search_bar.send_keys(Keys.CONTROL + 'a')
         self.search_bar.send_keys(Keys.BACK_SPACE)
         sleep(1)
@@ -103,19 +101,24 @@ class WASession:
         webdriver.ActionChains(self.driver).send_keys(Keys.RETURN).perform()
         sleep(1)
 
-            
+    def closeCurrentChat(self):
+        webdriver.ActionChains(self.driver).send_keys(Keys.ESCAPE).perform()
+        sleep(1)
+        webdriver.ActionChains(self.driver).send_keys(Keys.ESCAPE).perform()
+
     def quit(self):
         self.driver.close()
 
 
 if __name__ == "__main__":
-    s = "Testing\nNew Line"
+    s = "Testing"
     sender = WASession()
-    contacts = ["01145082486", "01126696747", "01145082486", "011465651586"]
+    contacts = ["1121580543", "1145082486", "115616546", "1126696747"]
 
     for contact in contacts:
         try:
             sender.sendGroupMessage(contact, s)
+            sleep(10)
 
         except Exception as e:
             sys.stderr.write(e.__str__())

@@ -5,10 +5,10 @@ from PyQt6.QtCore import QThread
 
 
 class MainApp(QMainWindow):
-    def __init__(self, parent:QMainWindow = None):
+    def __init__(self, parent: QMainWindow = None):
         super().__init__(parent)
 
-        ############ GUI Settings ##############
+        # --------- GUI Settings ----------
         # Central widget
         self.centralStackedWidget = QStackedWidget(parent=self)
 
@@ -36,7 +36,7 @@ class MainApp(QMainWindow):
 
         # Setting status bar
         self.setStatusBar(self.statusbar)
-
+        self.statusbar.showMessage("Developer: Sayed Reda")
 
     def startWorking(self, spreadURL: str, worksheetName: str):
         # Worker and thread
@@ -56,30 +56,24 @@ class MainApp(QMainWindow):
         self.worker.add_log_request.connect(self.logs.addLog)
         self.worker.logs_row_change_request.connect(self.logs.updateRow)
         self.worker.database_error_raised.connect(
-            lambda: QMessageBox.critical(self, "Database Error", "Database file is missing or corrupted\nGo to settings and reconfigure")
+            lambda: QMessageBox.critical(self, "Database Error",
+                                         "Database file is missing or corrupted\nGo to settings and reconfigure")
         )
         self.thread.start()
 
         # Others
         self.switchWidget(1)
         self.logs.start()
-        self.thread.finished.connect(self.logs.end)
-
+        self.worker.finished.connect(self.logs.end)
+        self.worker.finished.connect(QApplication.beep)
 
     def switchWidget(self, i):
         self.centralStackedWidget.setCurrentIndex(i)
 
 
-    def updateStatus(self, status: str, msecs:int = -1):
-        if (msecs == -1):
-            self.statusbar.showMessage(status)
-        else:
-            self.statusbar.showMessage(status, msecs)
-
-
-
 if __name__ == "__main__":
     app = QApplication([])
+    app.setStyle("fusion")
 
     main = MainApp()
     main.show()

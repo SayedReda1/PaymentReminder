@@ -1,11 +1,10 @@
-import gspread
-import whatsapp
 from data_fetcher import *
 from PyQt6.QtCore import QObject, pyqtSignal
 import sqlite3
 import datetime
 import os
 from time import sleep
+
 
 def isToday(date_str: str):
     """
@@ -50,24 +49,22 @@ class MainWorker(QObject):
             self.worksheet = self.spreadsheet.worksheet(self.worksheetName)
 
             # Fetching data from database
-            self.add_log_request.emit("Fetching data from database...", "")
             data = self.fetchSettings()
             if not data:
                 return
 
             # WA Sender
-            self.add_log_request.emit("Opening WhatsApp sender....", "")
+            self.add_log_request.emit("Opening WhatsApp....", "")
             self.sender = whatsapp.WASession()
 
             # Configure range
             if all(x == 1 for x in data['range']):
-                rows = range(1, self.worksheet.row_count+1)
+                row, max = 1, self.worksheet.row_count
             else:
-                rows = range(data['range'][0], data['range'][1]+1)
+                row, max = data['range'][0], data['range'][1]
 
             # Start working
-            self.add_log_request.emit("Starting to search...", "")
-            for row in rows:
+            while row <= max:
                 try:
                     self.logs_row_change_request.emit(row)
                     
@@ -85,23 +82,27 @@ class MainWorker(QObject):
                 except gspread.exceptions.APIError as error:
                     # Only handle server exhaustion, otherwise raise
                     if error.response.status_code == 429:
-                        self.add_log_request.emit("Server requests exhaustion, waiting for 70 secs...", "")
-                        sleep(70)
+                        self.add_log_request.emit("Server requests exhaustion, waiting for 120 secs...", "")
+                        sleep(120)
                         self.add_log_request.emit("Continued ^_^", "")
+                        row -= 1
                     else:
                         raise error
                     
                 # WhatsApp Sender exceptions
                 except (whatsapp.exceptions.NoGroupsFound, whatsapp.exceptions.ContactNotFound) as exception:
                     self.worksheet.update_cell(row, data['bot'], exception.__str__())
-                    self.add_log_request.emit(f"[{row}]: {message.student} -> {exception.__str__()}", "orange")
+                    self.add_log_request.emit(f"{message.student}: {exception.__str__()}", "brown")
+
+                finally:
+                    row += 1
 
             # Done without errors
             self.add_log_request.emit("Done", "green")
 
         # Cannot open WhatsApp
         except whatsapp.exceptions.InvalidWhatsAppLogin:
-            # Cannot login to whatsapp
+            # Cannot log in to whatsapp
             self.add_log_request.emit("Couldn't login to WhatsApp", "red")
 
         # Input errors
@@ -112,7 +113,6 @@ class MainWorker(QObject):
         finally:
             self.sender.quit()
             self.finished.emit()
-            
 
     def fetchSettings(self):
         try:
