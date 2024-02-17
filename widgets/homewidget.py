@@ -7,152 +7,153 @@ import sys
 
 
 class HomeWidget(QWidget):
-    def __init__(self, parent = None):
+    def __init__(self, parent=None):
         super().__init__(parent)
 
-        ########### GUI Settings ###########
+        # -------- GUI Settings ----------
         # Saving parent reference
         self.m_parent = parent
 
         # Main widget
-        self.mainLayout = QVBoxLayout(self)
+        self.main_layout = QVBoxLayout(self)
 
         # Header widgets
-        self.headerLayout = QHBoxLayout()
-        self.mainIcon = QLabel(parent=self)
-        self.mainLabel = QLabel(parent=self)
-        self.settingsButton = QPushButton(parent=self)
+        self.top_layout = QHBoxLayout()
+        self.main_icon = QLabel(self)
+        self.main_label = QLabel(self)
+        self.settings_button = QPushButton(self)
 
         # Middle body widgets
         # self.middleBodyFrame = QFrame(parent=self)
-        self.bodyLayout = QVBoxLayout()
-        self.spreadsheetLabel = QLabel(parent=self)
-        self.spreadsheetLine = QLineEdit(parent=self)
-        self.worksheetLabel = QLabel(parent=self)
-        self.worksheetLine = QLineEdit(parent=self)
+        self.body_layout = QVBoxLayout()
+        self.spreadsheet_label = QLabel(self)
+        self.spreadsheet_line = QLineEdit(self)
+        self.worksheet_label = QLabel(self)
+        self.worksheet_line = QLineEdit(self)
 
         # Control buttons widgets
-        self.horizontalLayout = QHBoxLayout()
-        self.copyMail = QPushButton(parent=self)
-        self.beginButton = QPushButton(parent=self)
+        self.bottom_layout = QHBoxLayout()
+        self.copy_mail_button = QPushButton(self)
+        self.begin_button = QPushButton(self)
 
         self.setupUi()
 
     def setupUi(self):
         # ------- Main widget
-        self.mainLayout.setContentsMargins(20, 15, 20, 15)
+        self.main_layout.setContentsMargins(20, 15, 20, 15)
 
         # ------- Header widgets
         # Icon
-        self.mainIcon.setMinimumSize(QSize(40, 40))
-        self.mainIcon.setMaximumSize(QSize(40, 40))
-        self.mainIcon.setPixmap(QPixmap(":/icons/icon.ico"))
-        self.mainIcon.setScaledContents(True)
-        self.headerLayout.addWidget(self.mainIcon)
+        self.main_icon.setMinimumSize(QSize(40, 40))
+        self.main_icon.setMaximumSize(QSize(40, 40))
+        self.main_icon.setPixmap(QPixmap(":/icons/icon.ico"))
+        self.main_icon.setScaledContents(True)
+        self.top_layout.addWidget(self.main_icon)
 
         # Header Label
-        self.mainLabel.setText("Payment Reminder")
+        self.main_label.setText("Payment Reminder")
         font = QFont()
         font.setFamily("Calibri Light")
         font.setPointSize(14)
-        self.mainLabel.setFont(font)
-        self.headerLayout.addWidget(self.mainLabel)
+        self.main_label.setFont(font)
+        self.top_layout.addWidget(self.main_label)
 
         # Header horizontal spacer
-        spacerItem = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
-        self.headerLayout.addItem(spacerItem)
+        spacer_item = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
+        self.top_layout.addItem(spacer_item)
 
         # Settings button
-        self.settingsButton.setMinimumSize(QSize(30, 30))
+        self.settings_button.setMinimumSize(QSize(30, 30))
         icon = QIcon()
         icon.addPixmap(QPixmap(":/icons/settings-dark.png"), QIcon.Mode.Normal, QIcon.State.Off)
-        self.settingsButton.setIcon(icon)
-        self.settingsButton.setIconSize(QSize(20, 20))
-        self.settingsButton.setToolTip("Open settings")
-        self.headerLayout.addWidget(self.settingsButton)
+        self.settings_button.setIcon(icon)
+        self.settings_button.setIconSize(QSize(20, 20))
+        self.settings_button.setToolTip("Open settings")
+        self.top_layout.addWidget(self.settings_button)
 
         # Adding header layout
-        self.mainLayout.addLayout(self.headerLayout)
+        self.main_layout.addLayout(self.top_layout)
 
         # ------- Middle Body Widgets
         # Middle body vertical layout
-        self.bodyLayout.setContentsMargins(0, -1, 0, -1)
+        self.body_layout.setContentsMargins(0, -1, 0, -1)
 
         # Spacer 1
-        spacerItem1 = QSpacerItem(20, 40, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
-        self.bodyLayout.addItem(spacerItem1)
+        spacer_item1 = QSpacerItem(20, 40, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
+        self.body_layout.addItem(spacer_item1)
 
         # Spread Sheet Label
-        self.spreadsheetLabel.setText("Spread Sheet")
+        self.spreadsheet_label.setText("Spread Sheet")
         font = QFont()
         font.setPointSize(8)
-        self.spreadsheetLabel.setFont(font)
-        self.bodyLayout.addWidget(self.spreadsheetLabel)
+        self.spreadsheet_label.setFont(font)
+        self.body_layout.addWidget(self.spreadsheet_label)
 
         # Spread Sheet LineEdit
-        self.spreadsheetLine.setPlaceholderText("Enter your Google Sheets URL")
-        self.bodyLayout.addWidget(self.spreadsheetLine)
+        self.spreadsheet_line.setPlaceholderText("Enter your Google Sheets URL")
+        self.body_layout.addWidget(self.spreadsheet_line)
 
         # Spacer 2
-        spacerItem2 = QSpacerItem(20, 40, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
-        self.bodyLayout.addItem(spacerItem2)
+        spacer_item2 = QSpacerItem(20, 40, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
+        self.body_layout.addItem(spacer_item2)
 
         # Work Sheet Label
-        self.worksheetLabel.setText("Work Sheet")
-        self.worksheetLabel.setFont(font)
-        self.bodyLayout.addWidget(self.worksheetLabel)
+        self.worksheet_label.setText("Work Sheet")
+        self.worksheet_label.setFont(font)
+        self.body_layout.addWidget(self.worksheet_label)
 
         # Work Sheet LineEdit
-        self.worksheetLine.setPlaceholderText("Enter your Work Sheet name")
-        self.bodyLayout.addWidget(self.worksheetLine)
+        self.worksheet_line.setPlaceholderText("Enter your Work Sheet name")
+        self.body_layout.addWidget(self.worksheet_line)
 
         # Spacer 3
-        spacerItem3 = QSpacerItem(478, 23, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
-        self.bodyLayout.addItem(spacerItem3)
+        spacer_item3 = QSpacerItem(478, 23, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
+        self.body_layout.addItem(spacer_item3)
 
         # Adding body layout to main
-        self.mainLayout.addLayout(self.bodyLayout)
+        self.main_layout.addLayout(self.body_layout)
 
         # ------ Control buttons layout
         # Copy Mail Button
         icon1 = QIcon()
         icon1.addPixmap(QPixmap(":/icons/copy-dark.png"), QIcon.Mode.Normal, QIcon.State.Off)
-        self.copyMail.setIcon(icon1)
-        self.copyMail.setIconSize(QSize(20, 20))
-        self.copyMail.setToolTip("Copy mail to add in the spreadsheet")
-        self.horizontalLayout.addWidget(self.copyMail)
+        self.copy_mail_button.setIcon(icon1)
+        self.copy_mail_button.setIconSize(QSize(20, 20))
+        self.copy_mail_button.setToolTip("Copy mail to add in the spreadsheet")
+        self.bottom_layout.addWidget(self.copy_mail_button)
 
         # middle spacer
-        spacerItem4 = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
-        self.horizontalLayout.addItem(spacerItem4)
+        spacer_item4 = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
+        self.bottom_layout.addItem(spacer_item4)
 
         # Begin button
-        self.beginButton.setText("Begin")
-        self.horizontalLayout.addWidget(self.beginButton)
+        self.begin_button.setText("Begin")
+        self.bottom_layout.addWidget(self.begin_button)
 
         # Layout settings
-        self.horizontalLayout.setStretch(1, 8)
-        self.horizontalLayout.setStretch(2, 4)
-        self.mainLayout.addLayout(self.horizontalLayout)
+        self.bottom_layout.setStretch(1, 8)
+        self.bottom_layout.setStretch(2, 4)
+        self.main_layout.addLayout(self.bottom_layout)
 
         # --------- SIGNALS -----------
-        self.settingsButton.clicked.connect(
+        self.begin_button.clicked.connect(self.onBeginButton)
+        self.settings_button.clicked.connect(
             lambda: SettingsDialog(self).exec()
         )
-        self.beginButton.clicked.connect(self.onBeginButton)
-        self.copyMail.clicked.connect(self.onCopyButton)
+        self.copy_mail_button.clicked.connect(
+            lambda: QApplication.clipboard().setText(
+                "hamelelquran-payment-reminder@hamelelquran-paymentreminder.iam.gserviceaccount.com"
+            )
+        )
 
     # --------- SLOTS ----------
     def onBeginButton(self):
-        self.m_parent.startWorking(self.spreadsheetLine.text(), self.worksheetLine.text())
+        self.m_parent.startWorking(self.spreadsheet_line.text(), self.worksheet_line.text())
         self.resetFields()
 
     def resetFields(self):
-        self.spreadsheetLine.clear()
-        self.worksheetLine.clear()
-
-    def onCopyButton(self):
-        QApplication.clipboard().setText("hamelelquran-payment-reminder@hamelelquran-paymentreminder.iam.gserviceaccount.com")
+        self.spreadsheet_line.clear()
+        self.worksheet_line.clear()
 
 
 if __name__ == "__main__":

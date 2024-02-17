@@ -10,15 +10,15 @@ class MainApp(QMainWindow):
 
         # --------- GUI Settings ----------
         # Central widget
-        self.centralStackedWidget = QStackedWidget(parent=self)
+        self.central_stacked_widget = QStackedWidget(parent=self)
 
         # Home & Logs Widget
-        self.home = HomeWidget(self)
-        self.logs = LogsWidget(self)
+        self.home_widget = HomeWidget(self)
+        self.logs_widget = LogsWidget(self)
 
         # Adding widgets
-        self.centralStackedWidget.addWidget(self.home)
-        self.centralStackedWidget.addWidget(self.logs)
+        self.central_stacked_widget.addWidget(self.home_widget)
+        self.central_stacked_widget.addWidget(self.logs_widget)
 
         # Status Bar
         self.statusbar = QStatusBar(parent=self)
@@ -32,18 +32,16 @@ class MainApp(QMainWindow):
         self.setWindowTitle("Payment Reminder")
 
         # Central stacked widget
-        self.setCentralWidget(self.centralStackedWidget)
+        self.setCentralWidget(self.central_stacked_widget)
 
         # Setting status bar
         self.setStatusBar(self.statusbar)
         self.statusbar.showMessage("Developer: Sayed Reda")
 
-    def startWorking(self, spreadURL: str, worksheetName: str):
+    def startWorking(self, spread_url: str, worksheet_name: str):
         # Worker and thread
-        self.worker = MainWorker()
+        self.worker = MainWorker(spread_url, worksheet_name)
         self.thread = QThread()
-        self.worker.spreadURL = spreadURL
-        self.worker.worksheetName = worksheetName
 
         # Moving to thread
         self.worker.moveToThread(self.thread)
@@ -53,8 +51,8 @@ class MainApp(QMainWindow):
         self.worker.finished.connect(self.thread.quit)
         self.worker.finished.connect(self.worker.deleteLater)
         self.thread.finished.connect(self.thread.deleteLater)
-        self.worker.add_log_request.connect(self.logs.addLog)
-        self.worker.logs_row_change_request.connect(self.logs.updateRow)
+        self.worker.add_log_request.connect(self.logs_widget.addLog)
+        self.worker.logs_row_change_request.connect(self.logs_widget.updateRow)
         self.worker.database_error_raised.connect(
             lambda: QMessageBox.critical(self, "Database Error",
                                          "Database file is missing or corrupted\nGo to settings and reconfigure")
@@ -63,12 +61,12 @@ class MainApp(QMainWindow):
 
         # Others
         self.switchWidget(1)
-        self.logs.start()
-        self.worker.finished.connect(self.logs.end)
+        self.logs_widget.start()
+        self.worker.finished.connect(self.logs_widget.end)
         self.worker.finished.connect(QApplication.beep)
 
     def switchWidget(self, i):
-        self.centralStackedWidget.setCurrentIndex(i)
+        self.central_stacked_widget.setCurrentIndex(i)
 
 
 if __name__ == "__main__":

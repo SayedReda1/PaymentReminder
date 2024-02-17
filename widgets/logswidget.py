@@ -1,30 +1,30 @@
-
-from PyQt6.QtWidgets import *
-from PyQt6.QtCore import Qt, QSize
-from PyQt6.QtGui import QColor
 import sys
+
+from PyQt6.QtCore import Qt
+from PyQt6.QtGui import QColor
+from PyQt6.QtWidgets import *
 
 
 class LogsWidget(QWidget):
-    def __init__(self, parent = None):
+    def __init__(self, parent=None):
         super().__init__(parent=parent)
 
         self.m_parent = parent
 
         # Main Layout
-        self.mainLayout = QVBoxLayout(self)
+        self.main_layout = QVBoxLayout(self)
 
         # Upper Row Section
-        self.topLayout = QHBoxLayout()
-        self.rowLabel = QLabel(parent=self, text="Row: ")
-        self.rowSpin = QSpinBox(parent=self)
+        self.top_layout = QHBoxLayout()
+        self.row_label = QLabel(parent=self, text="Row: ")
+        self.row_spin = QSpinBox(parent=self)
 
         # Logs List
-        self.logsListWidget = QListWidget(parent=self)
+        self.logs_list_widget = QListWidget(parent=self)
 
         # Lower Buttons Section
-        self.bottomLayout = QHBoxLayout()
-        self.backButton = QPushButton(parent=self, text="Back")
+        self.bottom_layout = QHBoxLayout()
+        self.back_button = QPushButton(parent=self, text="Back")
         self.status_control_button = QPushButton(parent=self, text="Resume")
 
         # Setup
@@ -32,60 +32,57 @@ class LogsWidget(QWidget):
 
     def setupUi(self):
         # Upper Row Section
-        self.topLayout.addWidget(self.rowLabel)
-        self.rowSpin.setStyleSheet("background-color: transparent;")
-        self.rowSpin.setFrame(False)
-        self.rowSpin.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.rowSpin.setButtonSymbols(QAbstractSpinBox.ButtonSymbols.NoButtons)
-        self.rowSpin.setReadOnly(True)
-        self.rowSpin.setRange(1, 100000)
-        self.topLayout.addWidget(self.rowSpin)
+        self.top_layout.addWidget(self.row_label)
+        self.row_spin.setStyleSheet("background-color: transparent;")
+        self.row_spin.setFrame(False)
+        self.row_spin.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.row_spin.setButtonSymbols(QAbstractSpinBox.ButtonSymbols.NoButtons)
+        self.row_spin.setReadOnly(True)
+        self.row_spin.setRange(1, 100000)
+        self.top_layout.addWidget(self.row_spin)
         spacerItem = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
-        self.topLayout.addItem(spacerItem)
-        self.mainLayout.addLayout(self.topLayout)
+        self.top_layout.addItem(spacerItem)
+        self.main_layout.addLayout(self.top_layout)
 
         # List Widget Section
-        self.mainLayout.addWidget(self.logsListWidget)
+        self.main_layout.addWidget(self.logs_list_widget)
 
         # Bottom Buttons Section
-        self.bottomLayout.addWidget(self.backButton)
+        self.bottom_layout.addWidget(self.back_button)
         spacerItem2 = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
-        self.bottomLayout.addItem(spacerItem2)
+        self.bottom_layout.addItem(spacerItem2)
         self.status_control_button.setCheckable(True)
-        self.bottomLayout.addWidget(self.status_control_button)
-        self.mainLayout.addLayout(self.bottomLayout)
+        self.bottom_layout.addWidget(self.status_control_button)
+        self.main_layout.addLayout(self.bottom_layout)
 
         # -------- SLOTS --------
-        self.backButton.clicked.connect(lambda: self.m_parent.switchWidget(0))
-        # self.status_control_button.clicked.connect()
-        # self.endButton.clicked.connect()
-
+        self.back_button.clicked.connect(lambda: self.m_parent.switchWidget(0))
 
     def start(self):
-        self.backButton.setDisabled(True)
+        self.back_button.setDisabled(True)
         self.status_control_button.setText("Pause")
-        self.status_control_button.setChecked(True)       # True if working, False otherwise
+        self.status_control_button.setChecked(True)  # True if working, False otherwise
         self.reset()
 
     def end(self):
-        self.backButton.setDisabled(False)
+        self.back_button.setDisabled(False)
         self.status_control_button.setText("Resume")
         self.status_control_button.setChecked(False)
 
     def addLog(self, log: str, color: str = ""):
-        item = QListWidgetItem(parent=self.logsListWidget)
+        item = QListWidgetItem(self.logs_list_widget)
         item.setText(log)
 
         if color:
             item.setForeground(QColor(color))
-        self.logsListWidget.addItem(item)
+        self.logs_list_widget.addItem(item)
 
-    def updateRow(self, rowIndex: int):
-        self.rowSpin.setValue(rowIndex)
+    def updateRow(self, row_index: int):
+        self.row_spin.setValue(row_index)
 
     def reset(self):
-        self.logsListWidget.clear()
-        self.rowSpin.clear()
+        self.logs_list_widget.clear()
+        self.row_spin.clear()
 
 
 if __name__ == "__main__":

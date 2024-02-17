@@ -1,9 +1,11 @@
-from data_fetcher import *
-from PyQt6.QtCore import QObject, pyqtSignal
-import sqlite3
 import datetime
 import os
+import sqlite3
 from time import sleep
+
+from PyQt6.QtCore import QObject, pyqtSignal
+
+from data_fetcher import *
 
 
 def isToday(date_str: str):
@@ -36,17 +38,24 @@ class MainWorker(QObject):
     logs_row_change_request = pyqtSignal(int)
     database_error_raised = pyqtSignal()
 
-    # Args
-    spreadURL:str = ""
-    worksheetName: str = ""
+    def __init__(self, spread_url: str, worksheet_name: str):
+        super().__init__()
+        # Args
+        self.spread_url = spread_url
+        self.worksheet_name = worksheet_name
+
+        # run variables
+        self.spreadsheet = None
+        self.worksheet = None
+        self.sender = None
 
     def run(self):
         try:
-        
+
             # Open spreadsheet and worksheet
             self.add_log_request.emit("Opening Spread Sheet...", "")
-            self.spreadsheet = openSpreadSheet(self.spreadURL, ["https://www.googleapis.com/auth/spreadsheets"])
-            self.worksheet = self.spreadsheet.worksheet(self.worksheetName)
+            self.spreadsheet = openSpreadSheet(self.spread_url, ["https://www.googleapis.com/auth/spreadsheets"])
+            self.worksheet = self.spreadsheet.worksheet(self.worksheet_name)
 
             # Fetching data from database
             data = self.fetchSettings()
@@ -55,7 +64,7 @@ class MainWorker(QObject):
 
             # WA Sender
             self.add_log_request.emit("Opening WhatsApp....", "")
-            self.sender = whatsapp.WASession()
+            self.sender = whatsapp.WhatsAppSession()
 
             # Configure range
             if all(x == 1 for x in data['range']):
@@ -67,11 +76,11 @@ class MainWorker(QObject):
             while row <= max:
                 try:
                     self.logs_row_change_request.emit(row)
-                    
+
                     # Fetch message
                     message = fetchMessage(self.worksheet, row, data['cols'])
 
-                    if isToday(message.startDate):
+                    if isToday(message.start_date):
                         # Sending the message
                         message.send(self.sender, data['message'])
                         # Mark as sent
@@ -88,7 +97,7 @@ class MainWorker(QObject):
                         row -= 1
                     else:
                         raise error
-                    
+
                 # WhatsApp Sender exceptions
                 except (whatsapp.exceptions.NoGroupsFound, whatsapp.exceptions.ContactNotFound) as exception:
                     self.worksheet.update_cell(row, data['bot'], exception.__str__())
@@ -111,7 +120,8 @@ class MainWorker(QObject):
             self.add_log_request.emit(error.__str__(), "red")
 
         finally:
-            self.sender.quit()
+            if self.sender:
+                self.sender.quit()
             self.finished.emit()
 
     def fetchSettings(self):
@@ -159,6 +169,3 @@ class MainWorker(QObject):
             connection.close()
             self.database_error_raised.emit()
             return None
-
-
-

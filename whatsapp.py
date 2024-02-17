@@ -2,7 +2,7 @@
 Name:           WhatsApp
 Purpose:        A script to send WA messages in private or to the first group in common
 Author:         Sayed Reda
-Last edited:    4/2/2024
+Last edited:    16/2/2024
 """
 
 import os
@@ -17,7 +17,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from time import sleep
 
 
-class WASession:
+class WhatsAppSession:
     """
         ? Sends a message and returns result, whether success of failure
     """
@@ -40,10 +40,7 @@ class WASession:
 
     def sendGroupMessage(self, phone: str, msg: str) -> None:
         # Reset search bar & close previous chat
-        self.closeCurrentChat()
-        self.search_bar.send_keys(Keys.CONTROL + 'a')
-        self.search_bar.send_keys(Keys.BACK_SPACE)
-        sleep(1)
+        self.clearPreviousSearch()
         
         # Find the contact
         self.search_bar.send_keys(phone, Keys.ENTER)
@@ -72,10 +69,7 @@ class WASession:
 
     def sendPrivateMessage(self, phone: str, msg: str):
         # Reset search bar & close previous chat
-        self.closeCurrentChat()
-        self.search_bar.send_keys(Keys.CONTROL + 'a')
-        self.search_bar.send_keys(Keys.BACK_SPACE)
-        sleep(1)
+        self.clearPreviousSearch()
 
         try:
             # Find the contact
@@ -101,10 +95,16 @@ class WASession:
         webdriver.ActionChains(self.driver).send_keys(Keys.RETURN).perform()
         sleep(1)
 
-    def closeCurrentChat(self):
+    def clearPreviousSearch(self):
+        # Close the chat
         webdriver.ActionChains(self.driver).send_keys(Keys.ESCAPE).perform()
         sleep(1)
         webdriver.ActionChains(self.driver).send_keys(Keys.ESCAPE).perform()
+
+        # Reset search bar & close previous chat
+        self.search_bar.send_keys(Keys.CONTROL + 'a')
+        self.search_bar.send_keys(Keys.BACK_SPACE)
+        sleep(1)
 
     def quit(self):
         self.driver.close()
@@ -112,7 +112,7 @@ class WASession:
 
 if __name__ == "__main__":
     s = "Testing"
-    sender = WASession()
+    sender = WhatsAppSession()
     contacts = ["1121580543", "1145082486", "115616546", "1126696747"]
 
     for contact in contacts:

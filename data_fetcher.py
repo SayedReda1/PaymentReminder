@@ -23,8 +23,8 @@ class ReminderMessage:
     def __init__(self, student, course: str, startDate: str, endDate: str, phone: str):
         self.student = student
         self.course = course
-        self.startDate = startDate
-        self.endDate = endDate
+        self.start_date = startDate
+        self.end_date = endDate
         self.phone = phone
     
     def value(self, msg_format: str) -> str:
@@ -32,10 +32,9 @@ class ReminderMessage:
             Returns the message value to be sent
         """
         return msg_format.format(student=self.student, course=self.course,
-                             startDate=self.startDate, endDate=self.endDate, month=datetime.date.today().strftime("%B"))
-    
+                                 start=self.start_date, end=self.end_date, month=datetime.date.today().strftime("%B"))
 
-    def send(self, sender: whatsapp.WASession, format:str) -> None:
+    def send(self, sender: whatsapp.WhatsAppSession, format:str) -> None:
         """
             Sends the message [self.value()] to the group using the phone number
 

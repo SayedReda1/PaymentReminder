@@ -1,9 +1,10 @@
-from PyQt6.QtWidgets import *
-from PyQt6.QtGui import QIcon, QPixmap
-from PyQt6.QtCore import QSize, QRect, Qt
-import sys
 import os
 import sqlite3
+import sys
+
+from PyQt6.QtCore import QSize, Qt
+from PyQt6.QtGui import QIcon, QPixmap
+from PyQt6.QtWidgets import *
 
 DATA_DIR = os.path.abspath('./config')
 
@@ -13,41 +14,42 @@ class SettingsDialog(QDialog):
         super().__init__(parent=parent)
 
         # Main Layout
-        self.mainLayout = QVBoxLayout(self)
+        self.main_layout = QVBoxLayout(self)
 
         # Scroll Area
-        self.scrollArea = QScrollArea(parent=self)
+        self.scroll_area = QScrollArea(self)
 
         # Scroll Area Content Widget
-        self.scrollAreaWidgetContents = QWidget()
-        self.contentsLayout = QVBoxLayout(self.scrollAreaWidgetContents)
+        self.scroll_area_contents_widget = QWidget(self.scroll_area)
+        self.contents_widget_layout = QVBoxLayout(self.scroll_area_contents_widget)
 
         # Columns group box
-        self.colsBox = QGroupBox(parent=self.scrollAreaWidgetContents)
-        self.colsLayout = QGridLayout(self.colsBox)
+        self.cols_box = QGroupBox(self.scroll_area_contents_widget)
+        self.cols_layout = QGridLayout(self.cols_box)
 
         # Labels and Spins
-        self.columnLabels = [QLabel(parent=self.colsBox) for i in range(6)]
-        self.columnSpins = [QSpinBox(parent=self.colsBox) for i in range(6)]
+        self.cols_labels = [QLabel(self.cols_box) for _ in range(6)]
+        self.cols_spins = [QSpinBox(self.cols_box) for _ in range(6)]
 
         # Range Box
-        self.rangeBox = QGroupBox(parent=self.scrollAreaWidgetContents)
-        self.rangeBoxLayout = QHBoxLayout(self.rangeBox)
-        self.rangeStartSpin = QSpinBox(parent=self.rangeBox)
-        self.arrowLabel = QLabel(parent=self.rangeBox)
-        self.rangeEndSpin = QSpinBox(parent=self.rangeBox)
+        self.range_box = QGroupBox(self.scroll_area_contents_widget)
+        self.range_layout = QHBoxLayout(self.range_box)
+        self.range_start_spin = QSpinBox(self.range_box)
+        self.arrow_label = QLabel(self.range_box)
+        self.range_end_spin = QSpinBox(self.range_box)
+        self.range_data = None
 
         # Message Box
-        self.messageBox = QGroupBox(parent=self.scrollAreaWidgetContents)
-        self.messageBoxLayout = QVBoxLayout(self.messageBox)
-        self.messagePlainText = QPlainTextEdit(parent=self.messageBox)
+        self.message_box = QGroupBox(self.scroll_area_contents_widget)
+        self.message_box_layout = QVBoxLayout(self.message_box)
+        self.message_plain_text = QPlainTextEdit(self.message_box)
 
         # Restore defaults
-        self.resetButtonLayout = QHBoxLayout()
-        self.resetButton = QPushButton(parent=self.scrollAreaWidgetContents)
+        self.reset_layout = QHBoxLayout()
+        self.reset_button = QPushButton(self.scroll_area_contents_widget)
 
         # Dialog buttons
-        self.buttonBox = QDialogButtonBox(parent=self)
+        self.button_box = QDialogButtonBox(self)
 
         # Modifiers
         self.setupUi()
@@ -62,148 +64,148 @@ class SettingsDialog(QDialog):
         self.resize(500, 250)
 
         # ------ Scroll Area
-        self.scrollArea.setFrameShape(QFrame.Shape.NoFrame)
-        self.scrollArea.setFrameShadow(QFrame.Shadow.Sunken)
-        self.scrollArea.setWidgetResizable(True)
-        self.scrollAreaWidgetContents.setStyleSheet("QWidget {\n"
-                                                    "    background-color: None;\n"
-                                                    "}")
-        self.mainLayout.addWidget(self.scrollArea)
-        self.scrollArea.setWidget(self.scrollAreaWidgetContents)
+        self.scroll_area.setFrameShape(QFrame.Shape.NoFrame)
+        self.scroll_area.setFrameShadow(QFrame.Shadow.Sunken)
+        self.scroll_area.setWidgetResizable(True)
+        self.scroll_area_contents_widget.setStyleSheet("QWidget {background-color: None;}")
+        self.main_layout.addWidget(self.scroll_area)
+        self.scroll_area.setWidget(self.scroll_area_contents_widget)
 
         # ------ Columns Group Box
-        self.colsBox.setAlignment(
+        self.cols_box.setAlignment(
             Qt.AlignmentFlag.AlignLeading | Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter)
-        self.colsBox.setFlat(True)
-        self.colsBox.setTitle("Columns")
-        self.contentsLayout.addWidget(self.colsBox)
+        self.cols_box.setFlat(True)
+        self.cols_box.setTitle("Columns")
+        self.contents_widget_layout.addWidget(self.cols_box)
 
         # Student
-        self.columnLabels[0].setText("Student")
-        self.columnSpins[0].setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.columnSpins[0].setButtonSymbols(QAbstractSpinBox.ButtonSymbols.NoButtons)
-        self.columnSpins[0].setMinimum(1)
-        self.columnSpins[0].setMaximum(100000)
-        self.colsLayout.addWidget(self.columnLabels[0], 1, 0, 1, 1)
-        self.colsLayout.addWidget(self.columnSpins[0], 2, 0, 1, 1)
+        self.cols_labels[0].setText("Student")
+        self.cols_spins[0].setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.cols_spins[0].setButtonSymbols(QAbstractSpinBox.ButtonSymbols.NoButtons)
+        self.cols_spins[0].setMinimum(1)
+        self.cols_spins[0].setMaximum(100000)
+        self.cols_layout.addWidget(self.cols_labels[0], 1, 0, 1, 1)
+        self.cols_layout.addWidget(self.cols_spins[0], 2, 0, 1, 1)
 
         # Course
-        self.columnLabels[1].setText("Course")
-        self.columnSpins[1].setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.columnSpins[1].setButtonSymbols(QAbstractSpinBox.ButtonSymbols.NoButtons)
-        self.columnSpins[1].setMinimum(1)
-        self.columnSpins[1].setMaximum(100000)
-        self.colsLayout.addWidget(self.columnLabels[1], 3, 0, 1, 1)
-        self.colsLayout.addWidget(self.columnSpins[1], 4, 0, 1, 1)
+        self.cols_labels[1].setText("Course")
+        self.cols_spins[1].setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.cols_spins[1].setButtonSymbols(QAbstractSpinBox.ButtonSymbols.NoButtons)
+        self.cols_spins[1].setMinimum(1)
+        self.cols_spins[1].setMaximum(100000)
+        self.cols_layout.addWidget(self.cols_labels[1], 3, 0, 1, 1)
+        self.cols_layout.addWidget(self.cols_spins[1], 4, 0, 1, 1)
 
         # Start Date
-        self.columnLabels[2].setText("Start date")
-        self.columnSpins[2].setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.columnSpins[2].setButtonSymbols(QAbstractSpinBox.ButtonSymbols.NoButtons)
-        self.columnSpins[2].setMinimum(1)
-        self.columnSpins[2].setMaximum(100000)
-        self.colsLayout.addWidget(self.columnLabels[2], 1, 4, 1, 1)
-        self.colsLayout.addWidget(self.columnSpins[2], 2, 4, 1, 1)
+        self.cols_labels[2].setText("Start date")
+        self.cols_spins[2].setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.cols_spins[2].setButtonSymbols(QAbstractSpinBox.ButtonSymbols.NoButtons)
+        self.cols_spins[2].setMinimum(1)
+        self.cols_spins[2].setMaximum(100000)
+        self.cols_layout.addWidget(self.cols_labels[2], 1, 4, 1, 1)
+        self.cols_layout.addWidget(self.cols_spins[2], 2, 4, 1, 1)
 
         # End Date
-        self.columnLabels[3].setText("End date")
-        self.columnSpins[3].setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.columnSpins[3].setButtonSymbols(QAbstractSpinBox.ButtonSymbols.NoButtons)
-        self.columnSpins[3].setMinimum(1)
-        self.columnSpins[3].setMaximum(100000)
-        self.colsLayout.addWidget(self.columnLabels[3], 3, 4, 1, 1)
-        self.colsLayout.addWidget(self.columnSpins[3], 4, 4, 1, 1)
+        self.cols_labels[3].setText("End date")
+        self.cols_spins[3].setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.cols_spins[3].setButtonSymbols(QAbstractSpinBox.ButtonSymbols.NoButtons)
+        self.cols_spins[3].setMinimum(1)
+        self.cols_spins[3].setMaximum(100000)
+        self.cols_layout.addWidget(self.cols_labels[3], 3, 4, 1, 1)
+        self.cols_layout.addWidget(self.cols_spins[3], 4, 4, 1, 1)
 
         # Phone
-        self.columnLabels[4].setText("Phone number")
-        self.columnSpins[4].setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.columnSpins[4].setButtonSymbols(QAbstractSpinBox.ButtonSymbols.NoButtons)
-        self.columnSpins[4].setMinimum(1)
-        self.columnSpins[4].setMaximum(100000)
-        self.colsLayout.addWidget(self.columnLabels[4], 1, 5, 1, 1)
-        self.colsLayout.addWidget(self.columnSpins[4], 2, 5, 1, 1)
+        self.cols_labels[4].setText("Phone number")
+        self.cols_spins[4].setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.cols_spins[4].setButtonSymbols(QAbstractSpinBox.ButtonSymbols.NoButtons)
+        self.cols_spins[4].setMinimum(1)
+        self.cols_spins[4].setMaximum(100000)
+        self.cols_layout.addWidget(self.cols_labels[4], 1, 5, 1, 1)
+        self.cols_layout.addWidget(self.cols_spins[4], 2, 5, 1, 1)
 
         # Bot notes
-        self.columnLabels[5].setText("Bot notes")
-        self.columnSpins[5].setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.columnSpins[5].setButtonSymbols(QAbstractSpinBox.ButtonSymbols.NoButtons)
-        self.columnSpins[5].setMinimum(1)
-        self.columnSpins[5].setMaximum(100000)
-        self.colsLayout.addWidget(self.columnSpins[5], 4, 5, 1, 1)
-        self.colsLayout.addWidget(self.columnLabels[5], 3, 5, 1, 1)
+        self.cols_labels[5].setText("Bot notes")
+        self.cols_spins[5].setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.cols_spins[5].setButtonSymbols(QAbstractSpinBox.ButtonSymbols.NoButtons)
+        self.cols_spins[5].setMinimum(1)
+        self.cols_spins[5].setMaximum(100000)
+        self.cols_layout.addWidget(self.cols_spins[5], 4, 5, 1, 1)
+        self.cols_layout.addWidget(self.cols_labels[5], 3, 5, 1, 1)
 
         # ------- Range Box
-        self.rangeBox.setTitle("Row range")
-        self.rangeBox.setFlat(True)
-        self.rangeBoxLayout.setSpacing(6)
-        self.rangeBoxLayout.setStretch(0, 3)
-        self.rangeBoxLayout.setStretch(1, 1)
-        self.rangeBoxLayout.setStretch(2, 3)
-        self.rangeBox.setToolTip("Row range to be checked out.\n[1 -> 1] means check the whole sheet.")
-        self.contentsLayout.addWidget(self.rangeBox)
+        self.range_box.setTitle("Row range")
+        self.range_box.setFlat(True)
+        self.range_layout.setSpacing(6)
+        self.range_layout.setStretch(0, 3)
+        self.range_layout.setStretch(1, 1)
+        self.range_layout.setStretch(2, 3)
+        self.range_box.setToolTip("Row range to be checked out.\n[1 -> 1] means check the whole sheet.")
+        self.contents_widget_layout.addWidget(self.range_box)
 
         # Range start
-        self.rangeStartSpin.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.rangeStartSpin.setButtonSymbols(QAbstractSpinBox.ButtonSymbols.NoButtons)
-        self.rangeStartSpin.setMinimum(1)
-        self.rangeStartSpin.setMaximum(100000)
-        self.rangeBoxLayout.addWidget(self.rangeStartSpin)
+        self.range_start_spin.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.range_start_spin.setButtonSymbols(QAbstractSpinBox.ButtonSymbols.NoButtons)
+        self.range_start_spin.setMinimum(1)
+        self.range_start_spin.setMaximum(100000)
+        self.range_layout.addWidget(self.range_start_spin)
 
         # Middle Icon
-        self.arrowLabel.setPixmap(QPixmap(":/icons/right-arrow.png"))
-        self.arrowLabel.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.rangeBoxLayout.addWidget(self.arrowLabel)
+        self.arrow_label.setPixmap(QPixmap(":/icons/right-arrow.png"))
+        self.arrow_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.range_layout.addWidget(self.arrow_label)
 
         # Range end
-        self.rangeEndSpin.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.rangeEndSpin.setButtonSymbols(QAbstractSpinBox.ButtonSymbols.NoButtons)
-        self.rangeEndSpin.setMinimum(1)
-        self.rangeEndSpin.setMaximum(100000)
-        self.rangeBoxLayout.addWidget(self.rangeEndSpin)
+        self.range_end_spin.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.range_end_spin.setButtonSymbols(QAbstractSpinBox.ButtonSymbols.NoButtons)
+        self.range_end_spin.setMinimum(1)
+        self.range_end_spin.setMaximum(100000)
+        self.range_layout.addWidget(self.range_end_spin)
 
         # ------ Message Box
-        self.messageBox.setToolTip("Enter the sent message format with optional 5 entries:\n"
-                                   "- {student}:	student name.\n"
-                                   "- {course}:	student\'s course of study.\n"
-                                   "- {startDate}:	course start date.\n"
-                                   "- {endDate}:	course end date.\n"
-                                   "- {month}:  	current month.\n")
-        self.messageBox.setTitle("Message format")
-        self.messageBox.setMinimumSize(QSize(0, 200))
-        self.messageBox.setFlat(True)
-        self.messageBoxLayout.setObjectName("messageBoxLayout")
-        self.contentsLayout.addWidget(self.messageBox)
+        self.message_box.setToolTip("Enter the sent message format with optional 5 entries:\n"
+                                    "- {student}:    student name.\n"
+                                    "- {course}:     student\'s course of study.\n"
+                                    "- {start}:      course start date.\n"
+                                    "- {end}:        course end date.\n"
+                                    "- {month}:      current month.\n")
+        self.message_box.setTitle("Message format")
+        self.message_box.setMinimumSize(QSize(0, 200))
+        self.message_box.setFlat(True)
+        self.message_box_layout.setObjectName("messageBoxLayout")
+        self.contents_widget_layout.addWidget(self.message_box)
 
         # Message PlainText
-        self.messageBoxLayout.addWidget(self.messagePlainText)
+        self.message_box_layout.addWidget(self.message_plain_text)
 
         # ----- Settings Buttons
-        self.resetButtonLayout.setStretch(0, 1)
-        self.resetButtonLayout.setStretch(1, 8)
-        self.contentsLayout.addLayout(self.resetButtonLayout)
+        self.reset_layout.setStretch(0, 1)
+        self.reset_layout.setStretch(1, 8)
+        self.contents_widget_layout.addLayout(self.reset_layout)
 
         # Reset button
-        self.resetButton.setText("  Reset")
+        self.reset_button.setText("  Reset")
         icon = QIcon()
         icon.addPixmap(QPixmap(":/icons/restart-dark.png"), QIcon.Mode.Normal, QIcon.State.Off)
-        self.resetButton.setIcon(icon)
-        self.resetButton.setIconSize(QSize(16, 16))
-        self.resetButton.setToolTip("Restore default settings")
-        self.resetButtonLayout.addWidget(self.resetButton)
+        self.reset_button.setIcon(icon)
+        self.reset_button.setIconSize(QSize(16, 16))
+        self.reset_button.setToolTip("Restore default settings")
+        self.reset_layout.addWidget(self.reset_button)
 
         # Spacer
-        spacerItem = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
-        self.resetButtonLayout.addItem(spacerItem)
+        spacer_item = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
+        self.reset_layout.addItem(spacer_item)
 
         # ------ Dialog Buttons
-        self.buttonBox.setOrientation(Qt.Orientation.Horizontal)
-        self.buttonBox.setStandardButtons(QDialogButtonBox.StandardButton.Cancel | QDialogButtonBox.StandardButton.Ok)
-        self.mainLayout.addWidget(self.buttonBox)
+        self.button_box.setOrientation(Qt.Orientation.Horizontal)
+        self.button_box.setStandardButtons(QDialogButtonBox.StandardButton.Cancel | QDialogButtonBox.StandardButton.Ok)
+        self.main_layout.addWidget(self.button_box)
 
-        ######## SIGNALS #########
-        self.buttonBox.accepted.connect(self.updateData)
-        self.buttonBox.rejected.connect(self.reject)
-        self.resetButton.clicked.connect(lambda: self.reset(True))
+        # ------ SIGNALS -------
+        self.button_box.accepted.connect(self.updateData)
+        self.button_box.rejected.connect(self.reject)
+        self.reset_button.clicked.connect(lambda: self.reset(True))
+        self.range_start_spin.editingFinished.connect(self.onSpinValueChange)
+        self.range_end_spin.editingFinished.connect(self.onSpinValueChange)
 
     def updateData(self):
         """
@@ -218,17 +220,17 @@ class SettingsDialog(QDialog):
         connection = sqlite3.connect(os.path.join(DATA_DIR, 'settings.db'))
         cursor = connection.cursor()
 
-        # Updating Coloumns
+        # Updating Columns
         for i in range(6):
             cursor.execute(
-                f"UPDATE Column SET Col = {self.columnSpins[i].value()} WHERE Field=\"{self.columnLabels[i].text()}\";")
+                f"UPDATE Column SET Col = {self.cols_spins[i].value()} WHERE ID={i};")
 
         # Updating Range
         cursor.execute(
-            f"UPDATE Range SET Start = {self.rangeStartSpin.value()}, End = {self.rangeEndSpin.value()} WHERE ID=0;")
+            f"UPDATE Range SET Start = {self.range_start_spin.value()}, End = {self.range_end_spin.value()} WHERE ID=0;")
 
         # Updating Message Format
-        cursor.execute(f"UPDATE MessageFormat SET Format = \"{self.messagePlainText.toPlainText()}\" WHERE ID=0;")
+        cursor.execute(f"UPDATE MessageFormat SET Format = \"{self.message_plain_text.toPlainText()}\" WHERE ID=0;")
 
         # Finishing up
         connection.commit()
@@ -249,7 +251,7 @@ class SettingsDialog(QDialog):
         cursor.execute("DROP TABLE IF EXISTS MessageFormat;")
 
         # Creating new tables
-        cursor.execute("CREATE TABLE Column (Field TEXT, Col INTEGER);")
+        cursor.execute("CREATE TABLE Column (ID INTEGER, Col INTEGER);")
         cursor.execute("CREATE TABLE Range (ID INTEGER, Start INTEGER, End INTEGER);")
         cursor.execute("CREATE TABLE MessageFormat (ID INTEGER, Format TEXT);")
 
@@ -257,13 +259,13 @@ class SettingsDialog(QDialog):
         # Columns
         for i in range(6):
             cursor.execute(
-                f"INSERT INTO Column VALUES ('{self.columnLabels[i].text()}', {self.columnSpins[i].value()});")
+                f"INSERT INTO Column VALUES ({i}, {self.cols_spins[i].value()});")
 
         # Range
-        cursor.execute(f"INSERT INTO Range VALUES (0, {self.rangeStartSpin.value()}, {self.rangeEndSpin.value()});")
+        cursor.execute(f"INSERT INTO Range VALUES (0, {self.range_start_spin.value()}, {self.range_end_spin.value()});")
 
         # Message Format
-        cursor.execute(f"INSERT INTO MessageFormat VALUES (0, \"{self.messagePlainText.toPlainText()}\");")
+        cursor.execute(f"INSERT INTO MessageFormat VALUES (0, \"{self.message_plain_text.toPlainText()}\");")
 
         # Committing and closing
         connection.commit()
@@ -282,22 +284,23 @@ class SettingsDialog(QDialog):
             # Retrieving columns
             cursor.execute("SELECT * FROM Column;")
             cols = cursor.fetchall()
-            for i, row in enumerate(cols):
-                self.columnSpins[i].setValue(row[1])
+            for i, row in cols:
+                self.cols_spins[i].setValue(row)
 
             # Retrieving Range
             cursor.execute("SELECT * FROM Range;")
 
             # Only one range
             ranges = cursor.fetchall()[0]
-            self.rangeStartSpin.setValue(ranges[1])
-            self.rangeEndSpin.setValue(ranges[2])
+            self.range_start_spin.setValue(ranges[1])
+            self.range_end_spin.setValue(ranges[2])
+            self.range_data = list(ranges[1:])
 
             # Retrieving Message Format
             cursor.execute("SELECT * FROM MessageFormat;")
             # Only one message format
             msg_format = cursor.fetchall()[0]
-            self.messagePlainText.setPlainText(msg_format[1])
+            self.message_plain_text.setPlainText(msg_format[1])
 
         except sqlite3.Error:
             # In case settings.db is deleted, we create a new one with defaults
@@ -308,32 +311,46 @@ class SettingsDialog(QDialog):
             connection.close()
 
     def reset(self, warn):
-        # Columns
-        if warn and QMessageBox.warning(self, "Reset Settings", "Are you sure to reset settings to default?",
-                                        QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No) != QMessageBox.StandardButton.Yes:
-            return
-        # Warn before editing
-        self.columnSpins[0].setValue(1)
-        self.columnSpins[1].setValue(3)
-        self.columnSpins[2].setValue(10)
-        self.columnSpins[3].setValue(11)
-        self.columnSpins[4].setValue(13)
-        self.columnSpins[5].setValue(15)
+        # Check if warning is required
+        status = True
+        if warn:
+            status = (QMessageBox.warning(parent=self, title="Reset Settings",
+                                          text="Are you sure to reset settings to default?",
+                                          buttons=QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
+                      == QMessageBox.StandardButton.Yes)
 
-        # Range (check all)
-        self.rangeStartSpin.setValue(1)
-        self.rangeEndSpin.setValue(1)
+        # Start to reset
+        if status:
+            self.cols_spins[0].setValue(1)
+            self.cols_spins[1].setValue(3)
+            self.cols_spins[2].setValue(10)
+            self.cols_spins[3].setValue(11)
+            self.cols_spins[4].setValue(13)
+            self.cols_spins[5].setValue(15)
 
-        # Message format
-        self.messagePlainText.setPlainText("Assalamu Alaikum\n"
-                                           "We'd like to remind you that *{student}*'s current course ended, "
-                                           "alhamdulilah, and we're beginning the next one for *{month}*.\n"
-                                           "\n"
-                                           "_*New course details:*_\n"
-                                           "*Student:* {student}\n"
-                                           "*Course:* {course}\n"
-                                           "*Start Date:* {startDate}\n"
-                                           "*End Date:* {endDate}")
+            # Range (check all)
+            self.range_start_spin.setValue(1)
+            self.range_end_spin.setValue(1)
+            self.range_data = [1, 1]
+
+            # Message format
+            self.message_plain_text.setPlainText("Assalamu Alaikum\n"
+                                                 "We'd like to remind you that *{student}*'s current course ended, "
+                                                 "alhamdulilah, and we're beginning the next one for *{month}*.\n"
+                                                 "\n"
+                                                 "_*New course details:*_\n"
+                                                 "*Student:* {student}\n"
+                                                 "*Course:* {course}\n"
+                                                 "*Start Date:* {start}\n"
+                                                 "*End Date:* {end}")
+
+    def onSpinValueChange(self):
+        if self.range_start_spin.value() > self.range_end_spin.value():
+            self.range_start_spin.setValue(self.range_data[0])
+            self.range_end_spin.setValue(self.range_data[1])
+        else:
+            self.range_data[0], self.range_data[1] = (
+                self.range_start_spin.value(), self.range_end_spin.value())
 
 
 if __name__ == "__main__":
